@@ -1,7 +1,5 @@
 import { Hono } from 'hono'
-import type { Context } from 'hono'
-import { requireSession } from '../auth.js'
-import { BadRequestError } from '../lib/errors.js'
+import { parseJsonBody, requireUserId } from '../lib/route-utils.js'
 import {
   completeTask,
   createTask,
@@ -13,32 +11,6 @@ import {
 } from './task-service.js'
 
 export const taskRoutes = new Hono()
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-async function requireUserId(c: Context) {
-  const session = await requireSession(c.req.raw.headers)
-
-  return session.user.id
-}
-
-async function parseJsonBody<T extends Record<string, unknown>>(c: Context) {
-  let body: unknown
-
-  try {
-    body = await c.req.json()
-  } catch {
-    throw new BadRequestError('Request body must be valid JSON.')
-  }
-
-  if (!isRecord(body)) {
-    throw new BadRequestError('Request body must be a JSON object.')
-  }
-
-  return body as T
-}
 
 taskRoutes.get('/', async (c) => {
   const userId = await requireUserId(c)

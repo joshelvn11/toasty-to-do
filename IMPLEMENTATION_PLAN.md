@@ -72,11 +72,11 @@ Done when:
 
 ## Phase 5: Focus Session Domain and Flows
 
-- [ ] Implement the focus session data and service layer using task references rather than duplicated task records.
-- [ ] Support creating a focus session with optional duration.
-- [ ] Support adding backlog tasks into a focus session and removing them again.
-- [ ] Support completing tasks from within a focus session without breaking backlog continuity.
-- [ ] Define the MVP rules for active versus ended sessions if that distinction is needed by the interface.
+- [x] Implement the focus session data and service layer using task references rather than duplicated task records.
+- [x] Support creating a focus session with optional duration.
+- [x] Support adding backlog tasks into a focus session and removing them again.
+- [x] Support completing tasks from within a focus session without breaking backlog continuity.
+- [x] Define the MVP rules for active versus ended sessions if that distinction is needed by the interface.
 
 Done when:
 

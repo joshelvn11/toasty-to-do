@@ -37,6 +37,30 @@
 - Task list filtering supports `open`, `completed`, and `all`, defaulting to `open`.
 - Invalid input returns `400`, missing auth returns `401`, and missing or foreign task ids return `404` without revealing ownership details.
 
+## Focus Session Domain Rules
+
+- Focus-session domain code lives under [server/focus-sessions/](/Users/joshbeaver/Documents/Projects/toasty-to-do/server/focus-sessions).
+- [server/focus-sessions/focus-session-repository.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/server/focus-sessions/focus-session-repository.ts:1) owns all Drizzle access for sessions and membership rows.
+- [server/focus-sessions/focus-session-service.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/server/focus-sessions/focus-session-service.ts:1) defines the MVP focus rules:
+  - at most one active focus session per user
+  - `durationMinutes` is optional but, when present, must be a positive whole number
+  - only active sessions can accept task adds, removals, completions, or ending
+  - completed tasks cannot be added into a focus session
+- Focus-session membership continues to reference canonical task records through `focus_session_task`; completing a task from a focus session still uses the central task completion path rather than creating a session-only task copy.
+- Session DTOs include nested task projections plus `addedToSessionAt`, ordered by membership creation time so the interface can preserve the sequence in which work was pulled into focus.
+
+## Focus Session API Boundary
+
+- Authenticated focus-session routes are mounted at `/api/focus-sessions` from [server/focus-sessions/focus-session-routes.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/server/focus-sessions/focus-session-routes.ts:1).
+- Supported routes are:
+  - `GET /api/focus-sessions/current`
+  - `POST /api/focus-sessions`
+  - `POST /api/focus-sessions/:sessionId/end`
+  - `POST /api/focus-sessions/:sessionId/tasks`
+  - `DELETE /api/focus-sessions/:sessionId/tasks/:taskId`
+  - `POST /api/focus-sessions/:sessionId/tasks/:taskId/complete`
+- Focus-session conflicts such as starting a second active session, re-adding the same task, or mutating an ended session return `409` through the shared server error handler.
+
 ## Backlog Client Flow
 
 - The protected backlog UI now lives in [src/routes/app-shell-page.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/routes/app-shell-page.tsx:1).
@@ -47,10 +71,11 @@
   - create, update, complete, and reopen mutations
   - reloads after successful mutations so the UI stays aligned with the server write path
 - Inline editing remains single-task-at-a-time inside the route component to keep the editing interaction local without introducing extra state infrastructure.
-- Focus-session UI is still intentionally absent from the authenticated app shell in this phase; the sidebar only preserves the product direction and handoff into Phase 5.
+- Focus-session UI is still intentionally absent from the authenticated app shell in this phase; Phase 5 only establishes the backend contract that Phase 6 will consume.
 
 ## Route Boundaries
 
 - `/`, `/sign-in`, and `/sign-up` are public-only routes.
 - `/app` is the protected authenticated backlog shell.
 - Unknown routes redirect to `/`, which then redirects authenticated users into `/app`.
+- Shared request parsing and authenticated user resolution now live in [server/lib/route-utils.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/server/lib/route-utils.ts:1) so the task and focus-session route modules can stay thin and consistent.

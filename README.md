@@ -5,7 +5,7 @@ Toasty To Do is a minimalist personal task app built around two concepts:
 - A backlog that holds everything you need to do
 - A focus session that narrows attention to what matters right now
 
-Phase 4 turns the protected `/app` route into a working backlog interface built on top of the Phase 3 task domain. Signed-in users can now capture tasks, filter the backlog, edit titles and priorities, and complete or reopen tasks through the authenticated `/api/tasks` API.
+Phase 5 keeps the protected `/app` route backlog-first while adding the backend focus-session domain that Phase 6 will plug into. Signed-in users can already manage backlog tasks through `/api/tasks`, and the server now supports creating a single active focus session, pulling tasks into it, removing them, ending the session, and completing session tasks through `/api/focus-sessions`.
 
 ## Stack
 
@@ -64,6 +64,7 @@ The default local endpoints are:
 - API health check: `http://localhost:8787/api/health`
 - Better Auth base route: `http://localhost:8787/api/auth/*`
 - Task API base route: `http://localhost:8787/api/tasks`
+- Focus-session API base route: `http://localhost:8787/api/focus-sessions`
 - Public auth routes: `http://localhost:5173/sign-in` and `http://localhost:5173/sign-up`
 - Protected app route: `http://localhost:5173/app`
 
@@ -82,4 +83,4 @@ The Vite client proxies `/api/*` requests to the Hono server during development.
 
 ## Current Status
 
-The app now supports the core backlog half of the MVP. Users can authenticate, land in a protected backlog at `/app`, create and prioritize tasks, edit them inline, and move tasks between open and completed states. The focus-session domain tables already exist on the backend, but the focus-session service and interface remain planned for the next phases.
+The app now supports the full backend domain for both halves of the MVP. Users can authenticate, land in a protected backlog at `/app`, create and prioritize tasks, edit them inline, and move tasks between open and completed states. The server also now supports one active focus session per user with optional duration, task membership management, and session-scoped task completion. The dedicated focus-session UI remains planned for Phase 6.
