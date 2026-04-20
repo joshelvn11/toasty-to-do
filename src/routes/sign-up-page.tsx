@@ -52,7 +52,7 @@ export function SignUpPage() {
       alternateCta="Sign in"
       alternateHref="/sign-in"
       alternateLabel="Already have an account?"
-      description="Phase 2 keeps sign-up intentionally simple: one account, one protected workspace, and a direct path into the app shell."
+      description="Sign-up stays intentionally simple: one account, one protected workspace, and a direct path into your private backlog."
       eyebrow="Create account"
       title="Set up a personal workspace."
     >

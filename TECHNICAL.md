@@ -37,8 +37,20 @@
 - Task list filtering supports `open`, `completed`, and `all`, defaulting to `open`.
 - Invalid input returns `400`, missing auth returns `401`, and missing or foreign task ids return `404` without revealing ownership details.
 
+## Backlog Client Flow
+
+- The protected backlog UI now lives in [src/routes/app-shell-page.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/routes/app-shell-page.tsx:1).
+- Client-side task requests are centralized in [src/lib/task-api.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/lib/task-api.ts:1) so the route component stays focused on view state rather than raw fetch details.
+- [src/hooks/use-backlog.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/hooks/use-backlog.ts:1) owns the authenticated backlog read and mutation flow:
+  - loading the current filter view
+  - switching among `open`, `completed`, and `all`
+  - create, update, complete, and reopen mutations
+  - reloads after successful mutations so the UI stays aligned with the server write path
+- Inline editing remains single-task-at-a-time inside the route component to keep the editing interaction local without introducing extra state infrastructure.
+- Focus-session UI is still intentionally absent from the authenticated app shell in this phase; the sidebar only preserves the product direction and handoff into Phase 5.
+
 ## Route Boundaries
 
 - `/`, `/sign-in`, and `/sign-up` are public-only routes.
-- `/app` is the protected authenticated shell.
+- `/app` is the protected authenticated backlog shell.
 - Unknown routes redirect to `/`, which then redirects authenticated users into `/app`.

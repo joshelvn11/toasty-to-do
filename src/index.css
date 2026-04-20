@@ -203,6 +203,39 @@ code {
   transform: translateY(-1px);
 }
 
+.secondary-button,
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.secondary-button:hover,
+.filter-chip:hover {
+  transform: translateY(-1px);
+}
+
+.secondary-button:disabled,
+.filter-chip:disabled,
+.button-link:disabled,
+.link-pill:disabled {
+  opacity: 0.68;
+  cursor: wait;
+  transform: none;
+}
+
 .page-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.9fr);
@@ -419,7 +452,8 @@ code {
 }
 
 .workspace-card header,
-.status-card header {
+.status-card header,
+.session-card header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -462,6 +496,176 @@ code {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+}
+
+.backlog-capture {
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.54);
+}
+
+.backlog-form,
+.task-edit-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(160px, 0.9fr) auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.backlog-field {
+  min-width: 0;
+}
+
+.backlog-title-field {
+  grid-column: auto;
+}
+
+.backlog-submit {
+  min-width: 132px;
+}
+
+.backlog-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin: 22px 0 16px;
+}
+
+.backlog-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-chip.active {
+  background: var(--accent);
+  color: #f8f4ee;
+  border-color: transparent;
+}
+
+.backlog-content {
+  display: grid;
+  gap: 16px;
+}
+
+.backlog-state-card,
+.task-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.66);
+  animation: rise-in 320ms ease both;
+}
+
+.backlog-state-card {
+  padding: 22px;
+}
+
+.backlog-state-card h3,
+.task-copy h3 {
+  margin: 12px 0 8px;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  letter-spacing: -0.03em;
+}
+
+.backlog-state-card p,
+.task-copy p,
+.session-meta {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.task-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.task-card {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+.task-card.is-completed {
+  background: rgba(248, 245, 240, 0.86);
+}
+
+.task-card.is-completed .task-copy h3 {
+  color: var(--ink-soft);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+.task-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.task-copy {
+  min-width: 0;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.priority-badge,
+.task-state-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+}
+
+.priority-badge.low {
+  background: rgba(41, 89, 74, 0.1);
+  color: var(--accent-strong);
+}
+
+.priority-badge.medium {
+  background: rgba(201, 141, 77, 0.16);
+  color: #8d5f2c;
+}
+
+.priority-badge.high {
+  background: rgba(157, 77, 66, 0.14);
+  color: var(--danger);
+}
+
+.task-state-chip {
+  background: rgba(32, 26, 20, 0.07);
+  color: var(--ink-soft);
+}
+
+.task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.task-actions-edit {
+  justify-content: flex-start;
+}
+
+.task-actions button {
+  min-width: 110px;
+}
+
+.session-meta {
+  margin-top: 14px;
 }
 
 .session-summary {
@@ -552,6 +756,19 @@ code {
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .backlog-form,
+  .task-edit-grid,
+  .task-main,
+  .backlog-toolbar {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .task-meta {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 640px) {
@@ -584,9 +801,17 @@ code {
     width: 100%;
   }
 
+  .backlog-filters,
+  .task-actions {
+    width: 100%;
+  }
+
   .hero-actions a,
   .nav-links a,
-  .nav-links button {
+  .nav-links button,
+  .task-actions button,
+  .backlog-filters button,
+  .backlog-submit {
     flex: 1 1 auto;
   }
 }

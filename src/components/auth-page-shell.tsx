@@ -62,20 +62,20 @@ export function AuthPageShell({
               <header>
                 <div>
                   <div className="eyebrow">Why this split</div>
-                  <h3>Public first, app second</h3>
+                  <h3>Public first, backlog second</h3>
                 </div>
-                <span className="status-pill ready">Phase 2</span>
+                <span className="status-pill ready">Phase 4</span>
               </header>
 
               <p>
                 Public routes stay lightweight, while authenticated routes keep
-                the current user and app state behind session checks.
+                the current user and backlog state behind session checks.
               </p>
 
               <ul className="status-list">
                 <li>Email and password only for the MVP</li>
-                <li>No social login or onboarding detours yet</li>
-                <li>Authenticated users land directly in the app shell</li>
+                <li>Backlog management lives at the protected <code>/app</code> route</li>
+                <li>Focus-session workflow is still reserved for a later phase</li>
               </ul>
             </section>
           </aside>

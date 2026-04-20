@@ -58,11 +58,11 @@ Done when:
 
 ## Phase 4: Backlog Experience
 
-- [ ] Build the backlog screen for authenticated users.
-- [ ] Implement task capture, task editing, priority changes, completion, and backlog listing.
-- [ ] Design the backlog UI to stay minimalist while still exposing the core task actions.
-- [ ] Add empty, loading, and basic error states for backlog interactions.
-- [ ] Verify the backlog experience supports the primary capture-and-prioritize workflow without extra organizational features.
+- [x] Build the backlog screen for authenticated users.
+- [x] Implement task capture, task editing, priority changes, completion, and backlog listing.
+- [x] Design the backlog UI to stay minimalist while still exposing the core task actions.
+- [x] Add empty, loading, and basic error states for backlog interactions.
+- [x] Verify the backlog experience supports the primary capture-and-prioritize workflow without extra organizational features.
 
 Done when:
 

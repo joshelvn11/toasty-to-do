@@ -5,7 +5,7 @@ Toasty To Do is a minimalist personal task app built around two concepts:
 - A backlog that holds everything you need to do
 - A focus session that narrows attention to what matters right now
 
-Phase 3 adds the first application domain layer: task and focus-session schema tables, a centralized task service, and authenticated task API routes built on top of the Better Auth `user` table.
+Phase 4 turns the protected `/app` route into a working backlog interface built on top of the Phase 3 task domain. Signed-in users can now capture tasks, filter the backlog, edit titles and priorities, and complete or reopen tasks through the authenticated `/api/tasks` API.
 
 ## Stack
 
@@ -82,4 +82,4 @@ The Vite client proxies `/api/*` requests to the Hono server during development.
 
 ## Current Status
 
-Phase 3 establishes the first user-owned task domain on the server. Users can authenticate, and the backend now supports user-scoped task creation, listing, editing, completion, and reopening through authenticated `/api/tasks` endpoints. The backlog and focus-session interface is still planned for later phases, but the persistence and write path for tasks now exist.
+The app now supports the core backlog half of the MVP. Users can authenticate, land in a protected backlog at `/app`, create and prioritize tasks, edit them inline, and move tasks between open and completed states. The focus-session domain tables already exist on the backend, but the focus-session service and interface remain planned for the next phases.

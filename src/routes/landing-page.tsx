@@ -7,11 +7,11 @@ export function LandingPage() {
       <div className="site-frame">
         <header className="topbar">
           <div className="brand-block">
-            <div className="brand-mark">Phase 2 authentication</div>
+            <div className="brand-mark">Phase 4 backlog</div>
             <h1 className="brand-title">Toasty To Do</h1>
             <p className="brand-copy">
               A minimalist backlog and focus-session app with real account
-              access, protected routes, and a calm path into the app.
+              access, a working backlog, and a calm path into the app.
             </p>
           </div>
 
@@ -36,12 +36,11 @@ export function LandingPage() {
         <section className="page-grid">
           <article className="hero-card">
             <div className="eyebrow">Current shape</div>
-            <h2>Account access first, task features next.</h2>
+            <h2>The backlog is live. Focus comes next.</h2>
             <p className="hero-copy">
-              The app now separates public entry from authenticated space. You
-              can create an account, sign in, and land in a protected app shell
-              that is ready for backlog and focus-session work in the next
-              phases.
+              The app now separates public entry from authenticated space and
+              gives each signed-in user a private backlog for capture,
+              prioritization, editing, and completion.
             </p>
 
             <div className="hero-actions">
@@ -59,30 +58,30 @@ export function LandingPage() {
 
         <section className="stack-list two-up">
           <article className="detail-card">
-            <h3>What Phase 2 includes</h3>
+            <h3>What the app includes now</h3>
             <p>
               Account creation, sign-in, protected app routing, Better Auth
-              schema ownership, and a shared current-user state for the client.
+              schema ownership, and a user-owned backlog interface backed by the
+              authenticated task API.
             </p>
             <ul className="bullet-list">
               <li>Dedicated <code>/sign-in</code> and <code>/sign-up</code> routes</li>
               <li>Public-only and protected route guards</li>
               <li>Better Auth tables defined in Drizzle</li>
-              <li>Authenticated handoff into <code>/app</code></li>
+              <li>Authenticated handoff into a working <code>/app</code> backlog</li>
             </ul>
           </article>
 
           <article className="detail-card">
             <h3>What comes next</h3>
             <p>
-              With user ownership established, the next phases can add
-              user-bound task storage, backlog management, and focus sessions on
-              top of the same auth foundation.
+              With the backlog experience in place, the next phase can introduce
+              focus sessions without changing the core task ownership model.
             </p>
             <ul className="bullet-list">
-              <li>Task schema and ownership rules</li>
-              <li>Backlog capture and priority management</li>
-              <li>Focus-session workflow</li>
+              <li>Focus-session creation with optional duration</li>
+              <li>Moving tasks into and out of the current session</li>
+              <li>A clearer separation between backlog and active focus</li>
             </ul>
           </article>
         </section>

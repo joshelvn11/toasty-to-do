@@ -43,7 +43,7 @@ export function SignInPage() {
       alternateCta="Create account"
       alternateHref="/sign-up"
       alternateLabel="Need an account?"
-      description="Use your email and password to reach the protected app shell. Backlog and focus-session features arrive in the next phases."
+      description="Use your email and password to reach your protected backlog. Focus-session features are still intentionally reserved for the next phase."
       eyebrow="Welcome back"
       title="Sign in and get back to the list."
     >
