@@ -191,6 +191,7 @@ code {
   background: var(--accent);
   color: #f8f4ee;
   border-color: transparent;
+  cursor: pointer;
 }
 
 .link-pill {
@@ -213,7 +214,10 @@ code {
 .detail-card,
 .status-card,
 .workspace-card,
-.placeholder-card {
+.placeholder-card,
+.auth-card,
+.auth-loading-card,
+.session-card {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface);
@@ -228,7 +232,10 @@ code {
 
 .detail-card,
 .status-card,
-.placeholder-card {
+.placeholder-card,
+.auth-card,
+.auth-loading-card,
+.session-card {
   padding: 22px;
 }
 
@@ -259,6 +266,96 @@ code {
   display: grid;
   gap: 16px;
   padding: 0 24px 24px;
+}
+
+.auth-shell {
+  display: flex;
+  align-items: stretch;
+}
+
+.auth-frame {
+  display: grid;
+  place-items: center;
+  min-height: min(70vh, 520px);
+}
+
+.auth-grid {
+  align-items: start;
+}
+
+.auth-card {
+  padding: 28px;
+}
+
+.auth-title {
+  margin: 14px 0 12px;
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 0.96;
+  letter-spacing: -0.05em;
+}
+
+.auth-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.field-input {
+  min-height: 48px;
+  width: 100%;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+}
+
+.field-input:focus {
+  outline: 2px solid rgba(41, 89, 74, 0.18);
+  border-color: var(--accent);
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.auth-submit:disabled,
+.button-reset:disabled {
+  opacity: 0.72;
+  cursor: wait;
+  transform: none;
+}
+
+.form-message {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+}
+
+.form-message.error {
+  background: rgba(157, 77, 66, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(157, 77, 66, 0.16);
+}
+
+.auth-alternate {
+  margin: 18px 0 0;
+  color: var(--ink-soft);
+}
+
+.auth-alternate a {
+  color: var(--accent-strong);
+  font-weight: 600;
 }
 
 .stack-list.two-up {
@@ -367,6 +464,24 @@ code {
   gap: 16px;
 }
 
+.session-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.session-card h3 {
+  margin: 12px 0 6px;
+  font-family: var(--serif);
+  font-size: 1.3rem;
+}
+
+.session-card p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
 .placeholder-card {
   min-height: 240px;
 }
@@ -400,6 +515,17 @@ code {
   font-size: 0.88rem;
 }
 
+.auth-loading-card {
+  width: min(460px, calc(100% - 40px));
+  margin: 48px auto;
+  text-align: center;
+}
+
+.button-reset {
+  appearance: none;
+  font: inherit;
+}
+
 @keyframes rise-in {
   from {
     opacity: 0;
@@ -416,7 +542,8 @@ code {
   .page-grid,
   .app-grid,
   .stack-list.two-up,
-  .workspace-columns {
+  .workspace-columns,
+  .session-summary {
     grid-template-columns: 1fr;
   }
 
@@ -444,6 +571,9 @@ code {
   .workspace-card,
   .status-card,
   .placeholder-card,
+  .auth-card,
+  .auth-loading-card,
+  .session-card,
   .topbar,
   .app-topbar {
     padding-inline: 18px;
@@ -455,7 +585,8 @@ code {
   }
 
   .hero-actions a,
-  .nav-links a {
+  .nav-links a,
+  .nav-links button {
     flex: 1 1 auto;
   }
 }

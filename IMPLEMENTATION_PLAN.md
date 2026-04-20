@@ -28,11 +28,11 @@ Done when:
 
 ## Phase 2: Authentication and User Ownership
 
-- [ ] Configure Better Auth for personal account access.
-- [ ] Implement sign-up, sign-in, and sign-out flows appropriate for the MVP.
-- [ ] Add session handling and route protection for authenticated areas.
-- [ ] Ensure the app has a consistent notion of the current user that can be used by data and UI layers.
-- [ ] Add a simple authenticated landing state for a newly signed-in user.
+- [x] Configure Better Auth for personal account access.
+- [x] Implement sign-up, sign-in, and sign-out flows appropriate for the MVP.
+- [x] Add session handling and route protection for authenticated areas.
+- [x] Ensure the app has a consistent notion of the current user that can be used by data and UI layers.
+- [x] Add a simple authenticated landing state for a newly signed-in user.
 
 Done when:
 
@@ -47,6 +47,7 @@ Done when:
 - [ ] Implement the central task domain/data layer for creating, reading, updating, completing, and listing tasks for a single user.
 - [ ] Define the discrete priority model used by the MVP.
 - [ ] Ensure task ownership and access rules are enforced at the data layer.
+- [ ] Build Phase 3 on top of the existing Better Auth `user` table rather than introducing a duplicate application users table.
 
 Done when:
 

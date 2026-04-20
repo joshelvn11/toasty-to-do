@@ -17,7 +17,8 @@ export function ApiHealthCard() {
         <>
           <p>
             The Hono API is responding through the Vite proxy, which means the
-            Phase 1 frontend and server skeleton are talking to each other.
+            frontend, auth routes, and server boundary are all connected
+            cleanly.
           </p>
           <span className="code-chip">
             {health.data.service} · {health.data.status} · {health.data.timestamp}

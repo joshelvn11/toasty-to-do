@@ -7,17 +7,20 @@ export function LandingPage() {
       <div className="site-frame">
         <header className="topbar">
           <div className="brand-block">
-            <div className="brand-mark">Phase 1 foundation</div>
+            <div className="brand-mark">Phase 2 authentication</div>
             <h1 className="brand-title">Toasty To Do</h1>
             <p className="brand-copy">
-              A minimalist backlog and focus-session app, now wired as a Vite
-              client with a small Node API behind it.
+              A minimalist backlog and focus-session app with real account
+              access, protected routes, and a calm path into the app.
             </p>
           </div>
 
           <nav className="nav-links" aria-label="Primary">
-            <Link className="button-link" to="/app">
-              Open app shell
+            <Link className="button-link" to="/sign-in">
+              Sign in
+            </Link>
+            <Link className="link-pill" to="/sign-up">
+              Create account
             </Link>
             <a
               className="link-pill"
@@ -33,21 +36,21 @@ export function LandingPage() {
         <section className="page-grid">
           <article className="hero-card">
             <div className="eyebrow">Current shape</div>
-            <h2>Full-stack skeleton, no feature noise.</h2>
+            <h2>Account access first, task features next.</h2>
             <p className="hero-copy">
-              The starter demo is gone. In its place is a clean shell for the
-              public entry route, the authenticated app route, the server mount
-              points for Better Auth, and the SQLite and Drizzle foundations the
-              next phases will build on.
+              The app now separates public entry from authenticated space. You
+              can create an account, sign in, and land in a protected app shell
+              that is ready for backlog and focus-session work in the next
+              phases.
             </p>
 
             <div className="hero-actions">
-              <Link className="button-link" to="/app">
-                Enter /app
+              <Link className="button-link" to="/sign-up">
+                Create your account
               </Link>
-              <a className="link-pill" href="/api/health">
-                Test proxied /api
-              </a>
+              <Link className="link-pill" to="/sign-in">
+                Sign in
+              </Link>
             </div>
           </article>
 
@@ -56,28 +59,28 @@ export function LandingPage() {
 
         <section className="stack-list two-up">
           <article className="detail-card">
-            <h3>What Phase 1 includes</h3>
+            <h3>What Phase 2 includes</h3>
             <p>
-              Routing, server bootstrap, auth mount, database bootstrap, shared
-              development scripts, and a restrained visual system.
+              Account creation, sign-in, protected app routing, Better Auth
+              schema ownership, and a shared current-user state for the client.
             </p>
             <ul className="bullet-list">
-              <li>React Router routes for <code>/</code> and <code>/app</code></li>
-              <li>Hono server mounted at <code>/api</code></li>
-              <li>Better Auth reserved at <code>/api/auth/*</code></li>
-              <li>SQLite file bootstrap with Drizzle wiring</li>
+              <li>Dedicated <code>/sign-in</code> and <code>/sign-up</code> routes</li>
+              <li>Public-only and protected route guards</li>
+              <li>Better Auth tables defined in Drizzle</li>
+              <li>Authenticated handoff into <code>/app</code></li>
             </ul>
           </article>
 
           <article className="detail-card">
             <h3>What comes next</h3>
             <p>
-              Future phases will add real authentication screens, user-bound
-              task storage, backlog management, and focus sessions.
+              With user ownership established, the next phases can add
+              user-bound task storage, backlog management, and focus sessions on
+              top of the same auth foundation.
             </p>
             <ul className="bullet-list">
-              <li>Authentication and protected app state</li>
-              <li>Task schema and domain rules</li>
+              <li>Task schema and ownership rules</li>
               <li>Backlog capture and priority management</li>
               <li>Focus-session workflow</li>
             </ul>
