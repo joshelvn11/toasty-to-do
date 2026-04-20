@@ -42,18 +42,19 @@ Done when:
 
 ## Phase 3: Database Schema and Task Domain
 
-- [ ] Define the initial Drizzle schema for users, tasks, focus sessions, and session-task membership.
-- [ ] Create the first migration set for the MVP schema.
-- [ ] Implement the central task domain/data layer for creating, reading, updating, completing, and listing tasks for a single user.
-- [ ] Define the discrete priority model used by the MVP.
-- [ ] Ensure task ownership and access rules are enforced at the data layer.
-- [ ] Build Phase 3 on top of the existing Better Auth `user` table rather than introducing a duplicate application users table.
+- [x] Define the initial Drizzle schema for users, tasks, focus sessions, and session-task membership.
+- [x] Create the first migration set for the MVP schema.
+- [x] Implement the central task domain/data layer for creating, reading, updating, completing, and listing tasks for a single user.
+- [x] Define the discrete priority model used by the MVP.
+- [x] Ensure task ownership and access rules are enforced at the data layer.
+- [x] Build Phase 3 on top of the existing Better Auth `user` table rather than introducing a duplicate application users table.
 
 Done when:
 
 - The schema supports the backlog and focus-session model from `BRIEF.md`.
 - Task operations are available through a single clear write path.
 - User-scoped task access is enforced consistently.
+- Authenticated `/api/tasks` routes are available for the Phase 4 backlog UI.
 
 ## Phase 4: Backlog Experience
 

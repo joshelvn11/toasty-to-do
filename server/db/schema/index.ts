@@ -1,11 +1,14 @@
 import { sql } from 'drizzle-orm'
 import {
+  check,
   index,
   integer,
+  primaryKey,
   sqliteTable,
   text,
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core'
+import { TASK_PRIORITIES } from '../../tasks/task-types.js'
 
 export const users = sqliteTable(
   'user',
@@ -129,6 +132,107 @@ export const verifications = sqliteTable(
   }),
 )
 
+export const tasks = sqliteTable(
+  'task',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    priority: text('priority', {
+      enum: TASK_PRIORITIES,
+    }).notNull(),
+    completedAt: integer('completed_at', {
+      mode: 'timestamp_ms',
+    }),
+    createdAt: integer('created_at', {
+      mode: 'timestamp_ms',
+    })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer('updated_at', {
+      mode: 'timestamp_ms',
+    })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => ({
+    priorityCheck: check(
+      'task_priority_check',
+      sql`${table.priority} in ('low', 'medium', 'high')`,
+    ),
+    userIdIndex: index('task_user_id_idx').on(table.userId),
+    userCompletedIndex: index('task_user_completed_idx').on(
+      table.userId,
+      table.completedAt,
+    ),
+    userPriorityIndex: index('task_user_priority_idx').on(
+      table.userId,
+      table.priority,
+    ),
+  }),
+)
+
+export const focusSessions = sqliteTable(
+  'focus_session',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    durationMinutes: integer('duration_minutes'),
+    startedAt: integer('started_at', {
+      mode: 'timestamp_ms',
+    })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    endedAt: integer('ended_at', {
+      mode: 'timestamp_ms',
+    }),
+    createdAt: integer('created_at', {
+      mode: 'timestamp_ms',
+    })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer('updated_at', {
+      mode: 'timestamp_ms',
+    })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => ({
+    userIdIndex: index('focus_session_user_id_idx').on(table.userId),
+    userStartedIndex: index('focus_session_user_started_idx').on(
+      table.userId,
+      table.startedAt,
+    ),
+  }),
+)
+
+export const focusSessionTasks = sqliteTable(
+  'focus_session_task',
+  {
+    focusSessionId: text('focus_session_id')
+      .notNull()
+      .references(() => focusSessions.id, { onDelete: 'cascade' }),
+    taskId: text('task_id')
+      .notNull()
+      .references(() => tasks.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', {
+      mode: 'timestamp_ms',
+    })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => ({
+    primaryKey: primaryKey({
+      columns: [table.focusSessionId, table.taskId],
+    }),
+    taskIdIndex: index('focus_session_task_task_id_idx').on(table.taskId),
+  }),
+)
+
 export const authSchema = {
   user: users,
   session: sessions,
@@ -136,4 +240,9 @@ export const authSchema = {
   verification: verifications,
 }
 
-export const appSchema = authSchema
+export const appSchema = {
+  ...authSchema,
+  task: tasks,
+  focusSession: focusSessions,
+  focusSessionTask: focusSessionTasks,
+}

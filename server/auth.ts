@@ -3,6 +3,7 @@ import { betterAuth } from 'better-auth'
 import { db } from './db/client.js'
 import { authSchema } from './db/schema/index.js'
 import { env } from './config/env.js'
+import { UnauthorizedError } from './lib/errors.js'
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -32,7 +33,7 @@ export async function requireSession(headers: Headers): Promise<AuthSession> {
   const session = await getSessionFromHeaders(headers)
 
   if (!session) {
-    throw new Error('Unauthorized')
+    throw new UnauthorizedError()
   }
 
   return session

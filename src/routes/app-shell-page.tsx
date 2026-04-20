@@ -33,8 +33,9 @@ export function AppShellPage() {
             <h1 className="brand-title">Welcome, {auth.user.name}</h1>
             <p className="brand-copy">
               You are signed in as {auth.user.email}. This protected shell now
-              resolves the current user cleanly and is ready for task features
-              in later phases.
+              resolves the current user cleanly, and the server now has the
+              Phase 3 task domain in place for the backlog interface that comes
+              next.
             </p>
           </div>
 
@@ -64,9 +65,10 @@ export function AppShellPage() {
             </header>
 
             <p className="workspace-copy">
-              The structural distinction is still in place, but now it sits
-              behind real authentication so future phases can bind data and
-              actions to the current user without changing the app shell shape.
+              The structural distinction is still in place, and Phase 3 now
+              backs it with real task and focus-session tables plus authenticated
+              task APIs. The interface work is still ahead, but the data
+              foundation is no longer a placeholder.
             </p>
 
             <section className="session-summary" aria-label="Current session">
@@ -97,8 +99,8 @@ export function AppShellPage() {
                 <div className="placeholder-note">
                   <strong>Later phase target</strong>
                   Task capture, priority levels, edit actions, and completion
-                  state will be introduced here on top of the authenticated user
-                  record.
+                  state will be wired into the new authenticated task API here
+                  in the next phase.
                 </div>
               </article>
 
@@ -124,8 +126,8 @@ export function AppShellPage() {
             <section className="status-card">
               <header>
                 <div>
-                  <div className="eyebrow">Auth boundaries</div>
-                  <h3>Phase 2 status</h3>
+                  <div className="eyebrow">Server foundation</div>
+                  <h3>Phase 3 status</h3>
                 </div>
                 <span className="status-pill ready">Ready</span>
               </header>
@@ -133,13 +135,13 @@ export function AppShellPage() {
               <ul className="status-list">
                 <li>Protected routes resolve the active Better Auth session</li>
                 <li>The Better Auth <code>user</code> table is the canonical app user record</li>
-                <li>Unauthenticated users are redirected away from <code>/app</code></li>
-                <li>Sign-out returns the user to the public auth flow</li>
+                <li>Authenticated <code>/api/tasks</code> routes now enforce user-scoped task access</li>
+                <li>Phase 4 can build the backlog UI on top of the new task write path</li>
               </ul>
 
               <p className="meta-copy">
-                This page is the hand-off point between authentication work and
-                the task and focus-session features that follow.
+                This page is now the hand-off point between backend domain work
+                and the backlog and focus-session interfaces that follow.
               </p>
             </section>
           </aside>

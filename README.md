@@ -5,7 +5,7 @@ Toasty To Do is a minimalist personal task app built around two concepts:
 - A backlog that holds everything you need to do
 - A focus session that narrows attention to what matters right now
 
-Phase 2 adds real authentication: dedicated sign-up and sign-in routes, protected app routing, Better Auth schema ownership through Drizzle, and a session-aware authenticated app shell.
+Phase 3 adds the first application domain layer: task and focus-session schema tables, a centralized task service, and authenticated task API routes built on top of the Better Auth `user` table.
 
 ## Stack
 
@@ -52,7 +52,7 @@ Start the frontend and API server together:
 npm run dev
 ```
 
-Apply database migrations before using authentication on a fresh database:
+Apply database migrations before using authentication or task APIs on a fresh database:
 
 ```bash
 npm run db:migrate
@@ -63,6 +63,7 @@ The default local endpoints are:
 - Frontend: `http://localhost:5173`
 - API health check: `http://localhost:8787/api/health`
 - Better Auth base route: `http://localhost:8787/api/auth/*`
+- Task API base route: `http://localhost:8787/api/tasks`
 - Public auth routes: `http://localhost:5173/sign-in` and `http://localhost:5173/sign-up`
 - Protected app route: `http://localhost:5173/app`
 
@@ -81,4 +82,4 @@ The Vite client proxies `/api/*` requests to the Hono server during development.
 
 ## Current Status
 
-Phase 2 establishes user ownership and protected navigation. Users can create an account, sign in, refresh an authenticated session, and sign out. Backlog and focus-session product behavior is still planned for later phases.
+Phase 3 establishes the first user-owned task domain on the server. Users can authenticate, and the backend now supports user-scoped task creation, listing, editing, completion, and reopening through authenticated `/api/tasks` endpoints. The backlog and focus-session interface is still planned for later phases, but the persistence and write path for tasks now exist.
