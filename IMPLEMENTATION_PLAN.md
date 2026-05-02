@@ -86,11 +86,11 @@ Done when:
 
 ## Phase 6: Focus Session Interface and Workflow Integration
 
-- [ ] Build the focus session UI and connect it to backlog data.
-- [ ] Make the distinction between backlog and current focus visually obvious.
-- [ ] Allow a user to start a session, view session contents, act on tasks, and end the session.
-- [ ] Ensure the end-to-end workflow works cleanly: capture task, prioritize task, add to session, complete or return it, repeat.
-- [ ] Add empty, loading, and error states specific to the focus workflow.
+- [x] Build the focus session UI and connect it to backlog data.
+- [x] Make the distinction between backlog and current focus visually obvious.
+- [x] Allow a user to start a session, view session contents, act on tasks, and end the session.
+- [x] Ensure the end-to-end workflow works cleanly: capture task, prioritize task, add to session, complete or return it, repeat.
+- [x] Add empty, loading, and error states specific to the focus workflow.
 
 Done when:
 

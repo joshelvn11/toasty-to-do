@@ -482,6 +482,16 @@ code {
   color: var(--ok);
 }
 
+.status-pill.idle {
+  background: rgba(41, 89, 74, 0.1);
+  color: var(--accent-strong);
+}
+
+.status-pill.focus-active {
+  background: rgba(41, 89, 74, 0.14);
+  color: var(--accent-strong);
+}
+
 .status-pill.error {
   background: rgba(157, 77, 66, 0.12);
   color: var(--danger);
@@ -532,6 +542,13 @@ code {
   align-items: center;
   gap: 14px;
   margin: 22px 0 16px;
+}
+
+.backlog-toolbar-status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .backlog-filters {
@@ -596,6 +613,12 @@ code {
   background: rgba(248, 245, 240, 0.86);
 }
 
+.task-card.is-in-focus {
+  border-color: rgba(41, 89, 74, 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(243, 249, 245, 0.82));
+}
+
 .task-card.is-completed .task-copy h3 {
   color: var(--ink-soft);
   text-decoration: line-through;
@@ -650,6 +673,11 @@ code {
   color: var(--ink-soft);
 }
 
+.task-state-chip.in-focus {
+  background: rgba(41, 89, 74, 0.14);
+  color: var(--accent-strong);
+}
+
 .task-actions {
   display: flex;
   flex-wrap: wrap;
@@ -662,6 +690,125 @@ code {
 
 .task-actions button {
   min-width: 110px;
+}
+
+.focus-session-card {
+  border-color: rgba(41, 89, 74, 0.22);
+  background:
+    linear-gradient(180deg, rgba(244, 251, 247, 0.92), rgba(252, 249, 241, 0.88));
+}
+
+.focus-panel-copy {
+  margin: 0 0 20px;
+  color: var(--ink-soft);
+}
+
+.focus-start-form {
+  display: grid;
+  gap: 14px;
+}
+
+.focus-note {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px dashed rgba(41, 89, 74, 0.24);
+  color: var(--ink-soft);
+}
+
+.focus-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0 18px;
+}
+
+.focus-metric {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid rgba(41, 89, 74, 0.14);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.focus-metric strong {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.focus-metric-label {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.focus-session-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.focus-task-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.focus-task-card,
+.focus-state-card {
+  border: 1px solid rgba(41, 89, 74, 0.16);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.focus-task-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.focus-task-card.is-completed {
+  background: rgba(246, 244, 238, 0.82);
+}
+
+.focus-task-card.is-completed .task-copy h3 {
+  color: var(--ink-soft);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+.focus-state-card {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+}
+
+.focus-state-card h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+}
+
+.focus-state-card p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.focus-task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .session-meta {
@@ -711,7 +858,6 @@ code {
 .code-chip {
   display: inline-flex;
   align-items: center;
-  margin-top: 12px;
   padding: 7px 11px;
   border-radius: 12px;
   background: rgba(32, 26, 20, 0.06);
@@ -747,7 +893,8 @@ code {
   .app-grid,
   .stack-list.two-up,
   .workspace-columns,
-  .session-summary {
+  .session-summary,
+  .focus-summary-grid {
     grid-template-columns: 1fr;
   }
 
@@ -767,6 +914,11 @@ code {
   }
 
   .task-meta {
+    justify-content: flex-start;
+  }
+
+  .backlog-toolbar-status,
+  .focus-session-meta {
     justify-content: flex-start;
   }
 }

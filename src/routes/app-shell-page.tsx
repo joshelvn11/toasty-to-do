@@ -1,8 +1,10 @@
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ApiHealthCard } from '../components/api-health-card.tsx'
-import { useBacklog } from '../hooks/use-backlog.ts'
+import { FocusSessionPanel } from '../components/focus-session-panel.tsx'
 import { useAuthState } from '../hooks/use-auth-state.ts'
+import { useBacklog } from '../hooks/use-backlog.ts'
+import { useFocusSession } from '../hooks/use-focus-session.ts'
 import { authClient } from '../lib/auth-client.ts'
 import {
   TASK_LIST_STATUSES,
@@ -27,6 +29,7 @@ const PRIORITY_LABELS: Record<TaskPriority, string> = {
 export function AppShellPage() {
   const auth = useAuthState()
   const backlog = useBacklog()
+  const focusSession = useFocusSession()
   const navigate = useNavigate()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [newTaskTitle, setNewTaskTitle] = useState('')
@@ -42,6 +45,25 @@ export function AppShellPage() {
   if (auth.status !== 'authenticated') {
     return null
   }
+
+  const currentFocusSession = focusSession.session
+  const focusTaskIds = new Set(currentFocusSession?.tasks.map((task) => task.id) ?? [])
+  const activeFocusTaskCount =
+    currentFocusSession?.tasks.filter((task) => !task.completedAt).length ?? 0
+  const isAnyFocusActionPending =
+    focusSession.isStarting ||
+    Boolean(focusSession.pendingSessionAction) ||
+    Boolean(focusSession.pendingTaskId)
+
+  const startError =
+    focusSession.mutationError?.scope === 'start'
+      ? focusSession.mutationError.message
+      : null
+
+  const sessionError =
+    focusSession.mutationError?.scope === 'session'
+      ? focusSession.mutationError.message
+      : null
 
   async function handleSignOut() {
     setIsSigningOut(true)
@@ -112,6 +134,10 @@ export function AppShellPage() {
       return
     }
 
+    if (focusTaskIds.has(taskId)) {
+      focusSession.reload()
+    }
+
     cancelEdit()
   }
 
@@ -120,9 +146,73 @@ export function AppShellPage() {
       ? await backlog.reopenTask(task.id)
       : await backlog.completeTask(task.id)
 
-    if (succeeded && editingTaskId === task.id) {
+    if (!succeeded) {
+      return
+    }
+
+    if (editingTaskId === task.id) {
       cancelEdit()
     }
+
+    if (focusTaskIds.has(task.id)) {
+      focusSession.reload()
+    }
+  }
+
+  async function handleStartFocusSession(durationMinutes: number | null) {
+    return focusSession.startSession({ durationMinutes })
+  }
+
+  async function handleEndFocusSession() {
+    if (!currentFocusSession) {
+      return
+    }
+
+    await focusSession.endSession(currentFocusSession.id)
+  }
+
+  async function handleAddTaskToFocus(taskId: string) {
+    if (!currentFocusSession) {
+      return
+    }
+
+    await focusSession.addTaskToSession(currentFocusSession.id, taskId)
+  }
+
+  async function handleRemoveTaskFromFocus(taskId: string) {
+    if (!currentFocusSession) {
+      return
+    }
+
+    await focusSession.removeTaskFromSession(currentFocusSession.id, taskId)
+  }
+
+  async function handleCompleteTaskInFocus(taskId: string) {
+    if (!currentFocusSession) {
+      return
+    }
+
+    const completed = await focusSession.completeTaskInSession(
+      currentFocusSession.id,
+      taskId,
+    )
+
+    if (!completed) {
+      return
+    }
+
+    backlog.reload()
+
+    if (editingTaskId === taskId) {
+      cancelEdit()
+    }
+  }
+
+  function getFocusTaskError(taskId: string) {
+    return focusSession.mutationError?.scope === 'task' &&
+      focusSession.mutationError.taskId === taskId
+      ? focusSession.mutationError.message
+      : null
   }
 
   const createErrorMessage =
@@ -134,12 +224,11 @@ export function AppShellPage() {
       <div className="site-frame">
         <header className="app-topbar">
           <div className="brand-block">
-            <div className="brand-mark">Authenticated workspace</div>
-            <h1 className="brand-title">{auth.user.name}'s backlog</h1>
+            <div className="brand-mark">Protected workspace</div>
+            <h1 className="brand-title">{auth.user.name}'s backlog and focus</h1>
             <p className="brand-copy">
-              Capture everything that matters, keep the priorities lightweight,
-              and let the focus-session workflow stay intentionally separate
-              until the next phase.
+              Keep the full list visible, then pull only a few tasks into the
+              current focus so the next action stays obvious.
             </p>
           </div>
 
@@ -169,8 +258,9 @@ export function AppShellPage() {
             </header>
 
             <p className="workspace-copy">
-              Add to the backlog quickly, adjust priority in place, and mark
-              work complete without turning the app into a project board.
+              Capture everything in one place, then use the focus panel to pull
+              a smaller working set out of the backlog without creating duplicate
+              task records.
             </p>
 
             <section className="backlog-capture" aria-label="Add a task">
@@ -245,13 +335,24 @@ export function AppShellPage() {
                 ))}
               </div>
 
-              <span className={`status-pill ${backlog.isLoading ? 'loading' : 'ready'}`}>
-                {backlog.isLoading
-                  ? 'Loading tasks'
-                  : `${backlog.tasks.length} ${
-                      backlog.tasks.length === 1 ? 'task' : 'tasks'
-                    }`}
-              </span>
+              <div className="backlog-toolbar-status">
+                <span className={`status-pill ${backlog.isLoading ? 'loading' : 'ready'}`}>
+                  {backlog.isLoading
+                    ? 'Loading tasks'
+                    : `${backlog.tasks.length} ${
+                        backlog.tasks.length === 1 ? 'task' : 'tasks'
+                      }`}
+                </span>
+                <span
+                  className={`status-pill ${
+                    currentFocusSession ? 'focus-active' : 'idle'
+                  }`}
+                >
+                  {currentFocusSession
+                    ? `${activeFocusTaskCount} in focus`
+                    : 'No active focus session'}
+                </span>
+              </div>
             </section>
 
             <section className="backlog-content" aria-live="polite">
@@ -285,8 +386,10 @@ export function AppShellPage() {
                 <ul className="task-list">
                   {backlog.tasks.map((task) => {
                     const isEditing = editingTaskId === task.id
-                    const isBusy = backlog.pendingTaskId === task.id
-                    const taskError =
+                    const isBacklogTaskBusy = backlog.pendingTaskId === task.id
+                    const isInFocus = focusTaskIds.has(task.id)
+                    const focusTaskError = getFocusTaskError(task.id)
+                    const backlogTaskError =
                       backlog.mutationError?.scope === 'task' &&
                       backlog.mutationError.taskId === task.id
                         ? backlog.mutationError.message
@@ -295,7 +398,9 @@ export function AppShellPage() {
                     return (
                       <li
                         key={task.id}
-                        className={`task-card ${task.completedAt ? 'is-completed' : ''}`}
+                        className={`task-card ${task.completedAt ? 'is-completed' : ''} ${
+                          isInFocus ? 'is-in-focus' : ''
+                        }`}
                       >
                         {isEditing ? (
                           <div className="task-edit-grid">
@@ -303,7 +408,7 @@ export function AppShellPage() {
                               <span>Edit title</span>
                               <input
                                 className="field-input"
-                                disabled={isBusy}
+                                disabled={isBacklogTaskBusy}
                                 onChange={(event) => {
                                   setEditTitle(event.target.value)
                                   if (editValidationError) {
@@ -319,7 +424,7 @@ export function AppShellPage() {
                               <span>Edit priority</span>
                               <select
                                 className="field-input"
-                                disabled={isBusy}
+                                disabled={isBacklogTaskBusy}
                                 onChange={(event) =>
                                   setEditPriority(event.target.value as TaskPriority)
                                 }
@@ -336,15 +441,15 @@ export function AppShellPage() {
                             <div className="task-actions task-actions-edit">
                               <button
                                 className="button-link"
-                                disabled={isBusy}
+                                disabled={isBacklogTaskBusy}
                                 onClick={() => void handleSaveEdit(task.id)}
                                 type="button"
                               >
-                                {isBusy ? 'Saving...' : 'Save'}
+                                {isBacklogTaskBusy ? 'Saving...' : 'Save'}
                               </button>
                               <button
                                 className="secondary-button"
-                                disabled={isBusy}
+                                disabled={isBacklogTaskBusy}
                                 onClick={cancelEdit}
                                 type="button"
                               >
@@ -356,7 +461,9 @@ export function AppShellPage() {
                               <p className="form-message error">{editValidationError}</p>
                             ) : null}
 
-                            {taskError ? <p className="form-message error">{taskError}</p> : null}
+                            {backlogTaskError ? (
+                              <p className="form-message error">{backlogTaskError}</p>
+                            ) : null}
                           </div>
                         ) : (
                           <>
@@ -376,6 +483,11 @@ export function AppShellPage() {
                                 <span className={`priority-badge ${task.priority}`}>
                                   {PRIORITY_LABELS[task.priority]} priority
                                 </span>
+                                {isInFocus ? (
+                                  <span className="task-state-chip in-focus">
+                                    {task.completedAt ? 'Completed in focus' : 'In focus'}
+                                  </span>
+                                ) : null}
                                 {task.completedAt ? (
                                   <span className="task-state-chip">Completed</span>
                                 ) : null}
@@ -391,13 +503,34 @@ export function AppShellPage() {
                               >
                                 Edit
                               </button>
+
+                              {currentFocusSession && !task.completedAt ? (
+                                <button
+                                  className="secondary-button"
+                                  disabled={
+                                    isInFocus ||
+                                    Boolean(backlog.pendingTaskId) ||
+                                    isAnyFocusActionPending
+                                  }
+                                  onClick={() => void handleAddTaskToFocus(task.id)}
+                                  type="button"
+                                >
+                                  {focusSession.pendingTaskId === task.id &&
+                                  focusSession.pendingTaskAction === 'add'
+                                    ? 'Adding...'
+                                    : isInFocus
+                                      ? 'In focus'
+                                      : 'Add to focus'}
+                                </button>
+                              ) : null}
+
                               <button
                                 className={task.completedAt ? 'secondary-button' : 'button-link'}
                                 disabled={Boolean(backlog.pendingTaskId)}
                                 onClick={() => void handleToggleTask(task)}
                                 type="button"
                               >
-                                {isBusy
+                                {isBacklogTaskBusy
                                   ? task.completedAt
                                     ? 'Reopening...'
                                     : 'Completing...'
@@ -407,7 +540,12 @@ export function AppShellPage() {
                               </button>
                             </div>
 
-                            {taskError ? <p className="form-message error">{taskError}</p> : null}
+                            {backlogTaskError ? (
+                              <p className="form-message error">{backlogTaskError}</p>
+                            ) : null}
+                            {focusTaskError ? (
+                              <p className="form-message error">{focusTaskError}</p>
+                            ) : null}
                           </>
                         )}
                       </li>
@@ -419,7 +557,37 @@ export function AppShellPage() {
           </section>
 
           <aside className="stack-list">
-            <ApiHealthCard />
+            <FocusSessionPanel
+              getTaskError={(taskId) => {
+                if (
+                  focusSession.mutationError?.scope === 'task' &&
+                  focusSession.mutationError.action !== 'add' &&
+                  focusSession.mutationError.taskId === taskId
+                ) {
+                  return focusSession.mutationError.message
+                }
+
+                return null
+              }}
+              isLoading={focusSession.isLoading}
+              isStarting={focusSession.isStarting}
+              loadError={focusSession.loadError}
+              onCompleteTask={handleCompleteTaskInFocus}
+              onEndSession={handleEndFocusSession}
+              onRemoveTask={handleRemoveTaskFromFocus}
+              onRetry={focusSession.reload}
+              onStartSession={handleStartFocusSession}
+              pendingSessionAction={focusSession.pendingSessionAction}
+              pendingTaskAction={
+                focusSession.pendingTaskAction === 'add'
+                  ? null
+                  : focusSession.pendingTaskAction
+              }
+              pendingTaskId={focusSession.pendingTaskId}
+              session={currentFocusSession}
+              sessionError={sessionError}
+              startError={startError}
+            />
 
             <section className="session-card">
               <header>
@@ -442,41 +610,21 @@ export function AppShellPage() {
             <section className="status-card">
               <header>
                 <div>
-                  <div className="eyebrow">What comes next</div>
-                  <h3>Focus session stays intentionally separate</h3>
+                  <div className="eyebrow">Workflow split</div>
+                  <h3>Backlog and current focus now work together</h3>
                 </div>
-                <span className="status-pill ready">Ready</span>
-              </header>
-
-              <p>
-                The backlog is now live. The next phase can turn a small slice
-                of this list into a deliberate working session without creating
-                duplicate task records.
-              </p>
-
-              <div className="placeholder-note">
-                <strong>Phase 5 target</strong>
-                Session creation, optional duration, and moving tasks into and
-                out of the active focus set will land here next.
-              </div>
-            </section>
-
-            <section className="status-card">
-              <header>
-                <div>
-                  <div className="eyebrow">Backlog behavior</div>
-                  <h3>Phase 4 status</h3>
-                </div>
-                <span className="status-pill ready">Live</span>
+                <span className="status-pill ready">Phase 6 live</span>
               </header>
 
               <ul className="status-list">
-                <li>New tasks default to medium priority unless you choose otherwise</li>
-                <li>Open, completed, and all-task views stay scoped to the signed-in user</li>
-                <li>Task edits and completion changes are saved through the authenticated API</li>
-                <li>Focus-session interactions remain out of scope for this phase</li>
+                <li>Backlog stays the full source list for every task you own</li>
+                <li>Focus sessions pull a temporary working set from backlog tasks</li>
+                <li>Completing work in focus still updates the same canonical task record</li>
+                <li>Returning a task removes it from focus without deleting it from backlog</li>
               </ul>
             </section>
+
+            <ApiHealthCard />
           </aside>
         </section>
       </div>
@@ -509,7 +657,10 @@ function EmptyBacklogState({ filter }: { filter: TaskListStatus }) {
     <section className="backlog-state-card">
       <div className="section-tag">Open backlog</div>
       <h3>Nothing is waiting right now.</h3>
-      <p>Add a task above to begin building the backlog you can later narrow into focus.</p>
+      <p>
+        Add a task above to begin building the backlog you can later narrow into
+        the current focus session.
+      </p>
     </section>
   )
 }

@@ -10,3 +10,5 @@
 - Added a Phase 5 focus-session backend module with explicit active-session rules, optional duration validation, and session task membership management built on canonical task records.
 - Added authenticated `/api/focus-sessions` endpoints for creating, ending, inspecting, and mutating focus sessions without duplicating tasks.
 - Added shared route utilities and `409` conflict handling so authenticated task and focus-session routes can stay thin and consistent.
+- Added a Phase 6 focus-session interface to the protected app shell so users can start a session, pull backlog tasks into focus, complete or return them, and end the session from one screen.
+- Added a client-side focus-session API module, state hook, and dedicated focus panel component to keep the backlog and active-session UI synchronized through the existing server write path.

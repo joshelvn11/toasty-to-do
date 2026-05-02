@@ -61,17 +61,24 @@
   - `POST /api/focus-sessions/:sessionId/tasks/:taskId/complete`
 - Focus-session conflicts such as starting a second active session, re-adding the same task, or mutating an ended session return `409` through the shared server error handler.
 
-## Backlog Client Flow
+## Backlog and Focus Client Flow
 
-- The protected backlog UI now lives in [src/routes/app-shell-page.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/routes/app-shell-page.tsx:1).
-- Client-side task requests are centralized in [src/lib/task-api.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/lib/task-api.ts:1) so the route component stays focused on view state rather than raw fetch details.
-- [src/hooks/use-backlog.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/hooks/use-backlog.ts:1) owns the authenticated backlog read and mutation flow:
+- The authenticated app workflow now lives in [src/routes/app-shell-page.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/routes/app-shell-page.tsx:1).
+- Shared client-side JSON fetching lives in [src/lib/api-client.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/lib/api-client.ts:1) so task and focus-session modules follow the same request/error pattern.
+- Task requests remain centralized in [src/lib/task-api.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/lib/task-api.ts:1).
+- Focus-session requests are centralized in [src/lib/focus-session-api.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/lib/focus-session-api.ts:1).
+- [src/hooks/use-backlog.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/hooks/use-backlog.ts:1) continues to own the authenticated backlog read and mutation flow:
   - loading the current filter view
   - switching among `open`, `completed`, and `all`
   - create, update, complete, and reopen mutations
-  - reloads after successful mutations so the UI stays aligned with the server write path
-- Inline editing remains single-task-at-a-time inside the route component to keep the editing interaction local without introducing extra state infrastructure.
-- Focus-session UI is still intentionally absent from the authenticated app shell in this phase; Phase 5 only establishes the backend contract that Phase 6 will consume.
+  - reloading after successful mutations so the UI stays aligned with the server write path
+- [src/hooks/use-focus-session.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/hooks/use-focus-session.ts:1) owns the active focus-session client flow:
+  - loading the current active session
+  - starting and ending a session
+  - adding, removing, and completing focus tasks
+  - tracking session-specific loading, pending-action, and mutation-error state
+- The focus panel presentation lives in [src/components/focus-session-panel.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/components/focus-session-panel.tsx:1) so the route can orchestrate backlog and session state without burying all focus UI details in one file.
+- When a backlog mutation changes a task that is currently in focus, the route triggers a focus-session reload so the focus panel stays consistent with the canonical task record.
 
 ## Route Boundaries
 
