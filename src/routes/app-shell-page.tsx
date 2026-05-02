@@ -1,13 +1,10 @@
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { LogOutIcon } from 'lucide-react'
-import { ApiHealthCard } from '@/components/api-health-card'
 import { BacklogPanel } from '@/components/backlog-panel'
 import { FocusSessionPanel } from '@/components/focus-session-panel'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import { useAuthState } from '@/hooks/use-auth-state'
 import { useBacklog } from '@/hooks/use-backlog'
 import { useFocusSession } from '@/hooks/use-focus-session'
@@ -29,13 +26,17 @@ export function AppShellPage() {
   const [editTitle, setEditTitle] = useState('')
   const [editPriority, setEditPriority] = useState<TaskPriority>('medium')
   const [editValidationError, setEditValidationError] = useState<string | null>(null)
+  const [queuedFocusTaskIds, setQueuedFocusTaskIds] = useState<string[]>([])
 
   if (auth.status !== 'authenticated') {
     return null
   }
 
   const currentFocusSession = focusSession.session
-  const focusTaskIds = new Set(currentFocusSession?.tasks.map((task) => task.id) ?? [])
+  const focusTaskIds = new Set([
+    ...(currentFocusSession?.tasks.map((task) => task.id) ?? []),
+    ...(!currentFocusSession ? queuedFocusTaskIds : []),
+  ])
   const activeFocusTaskCount =
     currentFocusSession?.tasks.filter((task) => !task.completedAt).length ?? 0
   const isAnyFocusActionPending =
@@ -148,7 +149,18 @@ export function AppShellPage() {
   }
 
   async function handleStartFocusSession(durationMinutes: number | null) {
-    return focusSession.startSession({ durationMinutes })
+    const createdSession = await focusSession.startSession({ durationMinutes })
+
+    if (!createdSession) {
+      return false
+    }
+
+    for (const taskId of queuedFocusTaskIds) {
+      await focusSession.addTaskToSession(createdSession.id, taskId)
+    }
+
+    setQueuedFocusTaskIds([])
+    return true
   }
 
   async function handleEndFocusSession() {
@@ -161,6 +173,11 @@ export function AppShellPage() {
 
   async function handleAddTaskToFocus(taskId: string) {
     if (!currentFocusSession) {
+      setQueuedFocusTaskIds((current) =>
+        current.includes(taskId)
+          ? current.filter((queuedTaskId) => queuedTaskId !== taskId)
+          : [...current, taskId],
+      )
       return
     }
 
@@ -291,6 +308,7 @@ export function AppShellPage() {
           onSaveEdit={handleSaveEdit}
           onToggleTask={handleToggleTask}
           pendingTaskId={backlog.pendingTaskId}
+          queuedFocusTaskCount={queuedFocusTaskIds.length}
           tasks={backlog.tasks}
         />
 
@@ -326,40 +344,6 @@ export function AppShellPage() {
             sessionError={sessionError}
             startError={startError}
           />
-
-          <Card className="border-border/70 shadow-sm">
-            <CardHeader className="gap-2">
-              <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
-                  <CardTitle>Current user</CardTitle>
-                  <CardDescription>{auth.user.email}</CardDescription>
-                </div>
-                <Badge variant="outline">Signed in</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1 text-sm">
-                <p className="font-medium">{auth.user.name}</p>
-                <p className="text-muted-foreground">
-                  Session expires {new Date(auth.session.expiresAt).toLocaleString()}
-                </p>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p className="font-medium text-foreground">Workflow split</p>
-                <ul className="list-disc space-y-1 pl-5">
-                  <li>Backlog stays the full source list for every task you own</li>
-                  <li>Focus sessions pull a temporary working set from backlog tasks</li>
-                  <li>Completing work in focus still updates the same canonical task record</li>
-                  <li>Returning a task removes it from focus without deleting it from backlog</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-
-          <ApiHealthCard />
         </aside>
       </section>
     </main>

@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { ApiHealthCard } from '@/components/api-health-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -47,7 +46,7 @@ export function AuthPageShell({
         </div>
       </header>
 
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.8fr)]">
+      <section className="mx-auto w-full max-w-2xl">
         <Card className="border-border/70 shadow-sm">
           <CardHeader className="space-y-2">
             <Badge className="w-fit" variant="secondary">
@@ -66,30 +65,6 @@ export function AuthPageShell({
             </p>
           </CardContent>
         </Card>
-
-        <aside className="space-y-6">
-          <ApiHealthCard />
-
-          <Card className="border-border/70 shadow-sm">
-            <CardHeader className="space-y-1">
-              <Badge className="w-fit" variant="outline">
-                Why this split
-              </Badge>
-              <CardTitle>Public first, backlog second</CardTitle>
-              <CardDescription>
-                Public routes stay lightweight, while authenticated routes keep the
-                current user and backlog state behind session checks.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
-                <li>Email and password only for the MVP</li>
-                <li>Backlog management lives at the protected <code>/app</code> route</li>
-                <li>Focus sessions narrow attention without creating duplicate tasks</li>
-              </ul>
-            </CardContent>
-          </Card>
-        </aside>
       </section>
     </main>
   )

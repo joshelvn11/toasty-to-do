@@ -42,6 +42,7 @@ type BacklogPanelProps = {
   onFilterChange: (status: TaskListStatus) => void
   onRetry: () => void
   currentFocusTaskCount: number
+  queuedFocusTaskCount: number
   hasActiveFocusSession: boolean
   editingTaskId: string | null
   editTitle: string
@@ -76,6 +77,7 @@ export function BacklogPanel({
   onFilterChange,
   onRetry,
   currentFocusTaskCount,
+  queuedFocusTaskCount,
   hasActiveFocusSession,
   editingTaskId,
   editTitle,
@@ -112,7 +114,9 @@ export function BacklogPanel({
             <Badge variant={hasActiveFocusSession ? 'default' : 'secondary'}>
               {hasActiveFocusSession
                 ? `${currentFocusTaskCount} in focus`
-                : 'No active focus'}
+                : queuedFocusTaskCount > 0
+                  ? `${queuedFocusTaskCount} queued for focus`
+                  : 'No active focus'}
             </Badge>
           </div>
         </div>
@@ -320,14 +324,25 @@ export function BacklogPanel({
                               Edit
                             </Button>
 
-                            {hasActiveFocusSession && !task.completedAt ? (
+                            {!task.completedAt ? (
                               <Button
-                                disabled={isInFocus || Boolean(pendingTaskId) || isAnyFocusActionPending}
+                                disabled={
+                                  hasActiveFocusSession &&
+                                  (isInFocus ||
+                                    Boolean(pendingTaskId) ||
+                                    isAnyFocusActionPending)
+                                }
                                 onClick={() => void onAddTaskToFocus(task.id)}
                                 type="button"
                                 variant="outline"
                               >
-                                {isInFocus ? 'In focus' : 'Add to focus'}
+                                {hasActiveFocusSession
+                                  ? isInFocus
+                                    ? 'In focus'
+                                    : 'Add to focus'
+                                  : isInFocus
+                                    ? 'Queued for focus'
+                                    : 'Add to next focus'}
                               </Button>
                             ) : null}
 
@@ -335,7 +350,7 @@ export function BacklogPanel({
                               disabled={Boolean(pendingTaskId)}
                               onClick={() => void onToggleTask(task)}
                               type="button"
-                              variant={task.completedAt ? 'outline' : 'default'}
+                              variant="outline"
                             >
                               {isBacklogTaskBusy
                                 ? task.completedAt

@@ -104,6 +104,18 @@ export function FocusSessionPanel({
       : new Date(
           new Date(session.startedAt).getTime() + session.durationMinutes * 60_000,
         ).toISOString()
+  const remainingMinutes =
+    !session || session.durationMinutes === null
+      ? null
+      : Math.max(
+          0,
+          Math.ceil(
+            (new Date(session.startedAt).getTime() +
+              session.durationMinutes * 60_000 -
+              Date.now()) /
+              60_000,
+          ),
+        )
 
   const isBusy = isStarting || pendingSessionAction === 'end' || Boolean(pendingTaskId)
 
@@ -143,8 +155,7 @@ export function FocusSessionPanel({
 
         {!loadError && session ? (
           <>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <MetricCard label="Started" value={formatDateTime(session.startedAt)} />
+            <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))]">
               <MetricCard
                 label="Duration"
                 value={
@@ -152,6 +163,10 @@ export function FocusSessionPanel({
                     ? 'Open-ended'
                     : `${session.durationMinutes} min`
                 }
+              />
+              <MetricCard
+                label="Time remaining"
+                value={remainingMinutes === null ? 'Open-ended' : `${remainingMinutes} min`}
               />
               <MetricCard label="Open in focus" value={String(activeTaskCount)} />
               <MetricCard label="Completed here" value={String(completedTaskCount)} />
@@ -219,6 +234,7 @@ export function FocusSessionPanel({
                                 disabled={isBusy}
                                 onClick={() => void onCompleteTask(task.id)}
                                 type="button"
+                                variant="outline"
                               >
                                 {isTaskBusy && pendingTaskAction === 'complete'
                                   ? 'Completing...'
@@ -284,7 +300,12 @@ export function FocusSessionPanel({
                 </p>
               </div>
 
-              <Button className="w-full sm:w-auto" disabled={isStarting} type="submit">
+              <Button
+                className="w-full sm:w-auto"
+                disabled={isStarting}
+                type="submit"
+                variant="outline"
+              >
                 {isStarting ? 'Starting...' : 'Start focus session'}
               </Button>
 

@@ -109,7 +109,7 @@ export function useFocusSession() {
       })
 
       setSession(createdSession)
-      return true
+      return createdSession
     } catch (error) {
       setMutationError({
         scope: 'start',
@@ -119,7 +119,7 @@ export function useFocusSession() {
         ),
       })
 
-      return false
+      return null
     } finally {
       setIsStarting(false)
     }

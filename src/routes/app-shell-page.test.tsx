@@ -19,10 +19,6 @@ vi.mock('@/hooks/use-focus-session', () => ({
   useFocusSession: vi.fn(),
 }))
 
-vi.mock('@/components/api-health-card', () => ({
-  ApiHealthCard: () => <div>API health card</div>,
-}))
-
 vi.mock('@/lib/auth-client', () => ({
   authClient: {
     signOut: vi.fn(),

@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { ApiHealthCard } from '@/components/api-health-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -26,15 +25,10 @@ export function LandingPage() {
           <Button asChild variant="outline">
             <Link to="/sign-up">Create account</Link>
           </Button>
-          <Button asChild variant="outline">
-            <a href="http://localhost:8787/api/health" rel="noreferrer" target="_blank">
-              View health endpoint
-            </a>
-          </Button>
         </div>
       </header>
 
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.8fr)]">
+      <section className="mx-auto w-full max-w-4xl">
         <Card className="border-border/70 shadow-sm">
           <CardHeader className="space-y-2">
             <Badge className="w-fit" variant="secondary">
@@ -94,8 +88,6 @@ export function LandingPage() {
             </div>
           </CardContent>
         </Card>
-
-        <ApiHealthCard />
       </section>
     </main>
   )
