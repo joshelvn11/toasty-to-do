@@ -1,91 +1,102 @@
 import { Link } from 'react-router-dom'
-import { ApiHealthCard } from '../components/api-health-card.tsx'
+import { ApiHealthCard } from '@/components/api-health-card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function LandingPage() {
   return (
-    <main className="app-shell">
-      <div className="site-frame">
-        <header className="topbar">
-          <div className="brand-block">
-            <div className="brand-mark">Phase 4 backlog</div>
-            <h1 className="brand-title">Toasty To Do</h1>
-            <p className="brand-copy">
-              A minimalist backlog and focus-session app with real account
-              access, a working backlog, and a calm path into the app.
+    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-6 py-8">
+      <header className="flex flex-col gap-4 rounded-2xl border border-border/70 bg-card p-6 shadow-sm lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-3">
+          <Badge variant="outline">MVP workflow</Badge>
+          <div className="space-y-1">
+            <h1 className="text-4xl font-semibold tracking-tight">Toasty To Do</h1>
+            <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
+              A minimalist backlog and focus-session app that keeps the full list
+              available while making the current working set unmistakably small.
             </p>
           </div>
+        </div>
 
-          <nav className="nav-links" aria-label="Primary">
-            <Link className="button-link" to="/sign-in">
-              Sign in
-            </Link>
-            <Link className="link-pill" to="/sign-up">
-              Create account
-            </Link>
-            <a
-              className="link-pill"
-              href="http://localhost:8787/api/health"
-              target="_blank"
-              rel="noreferrer"
-            >
+        <div className="flex flex-wrap gap-2">
+          <Button asChild>
+            <Link to="/sign-in">Sign in</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/sign-up">Create account</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <a href="http://localhost:8787/api/health" rel="noreferrer" target="_blank">
               View health endpoint
             </a>
-          </nav>
-        </header>
+          </Button>
+        </div>
+      </header>
 
-        <section className="page-grid">
-          <article className="hero-card">
-            <div className="eyebrow">Current shape</div>
-            <h2>The backlog is live. Focus comes next.</h2>
-            <p className="hero-copy">
-              The app now separates public entry from authenticated space and
-              gives each signed-in user a private backlog for capture,
-              prioritization, editing, and completion.
-            </p>
-
-            <div className="hero-actions">
-              <Link className="button-link" to="/sign-up">
-                Create your account
-              </Link>
-              <Link className="link-pill" to="/sign-in">
-                Sign in
-              </Link>
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.8fr)]">
+        <Card className="border-border/70 shadow-sm">
+          <CardHeader className="space-y-2">
+            <Badge className="w-fit" variant="secondary">
+              Current shape
+            </Badge>
+            <CardTitle>The backlog and focus flow are live.</CardTitle>
+            <CardDescription>
+              Signed-in users can capture tasks, prioritize them, start a session,
+              pull work into focus, complete it, or return it to the backlog.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <Button asChild>
+                <Link to="/sign-up">Create your account</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/sign-in">Sign in</Link>
+              </Button>
             </div>
-          </article>
 
-          <ApiHealthCard />
-        </section>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card className="border-border/70 shadow-none">
+                <CardHeader className="space-y-1">
+                  <CardTitle>What the app includes now</CardTitle>
+                  <CardDescription>
+                    The MVP stays intentionally narrow and centered on the
+                    backlog-to-focus workflow.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+                    <li>Account creation, sign-in, and protected routing</li>
+                    <li>Backlog creation, editing, completion, and filtering</li>
+                    <li>One active focus session with optional duration</li>
+                    <li>Task pull-in, completion, and return-to-backlog actions</li>
+                  </ul>
+                </CardContent>
+              </Card>
 
-        <section className="stack-list two-up">
-          <article className="detail-card">
-            <h3>What the app includes now</h3>
-            <p>
-              Account creation, sign-in, protected app routing, Better Auth
-              schema ownership, and a user-owned backlog interface backed by the
-              authenticated task API.
-            </p>
-            <ul className="bullet-list">
-              <li>Dedicated <code>/sign-in</code> and <code>/sign-up</code> routes</li>
-              <li>Public-only and protected route guards</li>
-              <li>Better Auth tables defined in Drizzle</li>
-              <li>Authenticated handoff into a working <code>/app</code> backlog</li>
-            </ul>
-          </article>
+              <Card className="border-border/70 shadow-none">
+                <CardHeader className="space-y-1">
+                  <CardTitle>What stays out of scope</CardTitle>
+                  <CardDescription>
+                    The MVP avoids turning into a general-purpose productivity suite.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+                    <li>No projects, tags, or due dates</li>
+                    <li>No recurring tasks or reminders</li>
+                    <li>No collaboration or shared lists</li>
+                    <li>No analytics-heavy dashboards</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          <article className="detail-card">
-            <h3>What comes next</h3>
-            <p>
-              With the backlog experience in place, the next phase can introduce
-              focus sessions without changing the core task ownership model.
-            </p>
-            <ul className="bullet-list">
-              <li>Focus-session creation with optional duration</li>
-              <li>Moving tasks into and out of the current session</li>
-              <li>A clearer separation between backlog and active focus</li>
-            </ul>
-          </article>
-        </section>
-      </div>
+        <ApiHealthCard />
+      </section>
     </main>
   )
 }

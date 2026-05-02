@@ -12,3 +12,6 @@
 - Added shared route utilities and `409` conflict handling so authenticated task and focus-session routes can stay thin and consistent.
 - Added a Phase 6 focus-session interface to the protected app shell so users can start a session, pull backlog tasks into focus, complete or return them, and end the session from one screen.
 - Added a client-side focus-session API module, state hook, and dedicated focus panel component to keep the backlog and active-session UI synchronized through the existing server write path.
+- Added the Phase 7 `shadcn/ui` + Tailwind UI baseline across the app, including generated primitives, shared composed panels, and a simplified token-driven global stylesheet.
+- Added typed client API errors with a predictable `401` redirect path for protected routes, keeping validation and auth-failure handling clearer in backlog and focus flows.
+- Added Vitest coverage for core task/focus service guardrails and the highest-value authenticated UI workflows.

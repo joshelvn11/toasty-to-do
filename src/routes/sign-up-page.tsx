@@ -1,5 +1,9 @@
 import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { AuthPageShell } from '../components/auth-page-shell.tsx'
 import { authClient } from '../lib/auth-client.ts'
 
@@ -56,12 +60,12 @@ export function SignUpPage() {
       eyebrow="Create account"
       title="Set up a personal workspace."
     >
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <label className="field">
-          <span>Name</span>
-          <input
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div className="space-y-2">
+          <Label htmlFor="sign-up-name">Name</Label>
+          <Input
+            id="sign-up-name"
             autoComplete="name"
-            className="field-input"
             disabled={isSubmitting}
             name="name"
             onChange={(event) => setName(event.target.value)}
@@ -69,13 +73,13 @@ export function SignUpPage() {
             type="text"
             value={name}
           />
-        </label>
+        </div>
 
-        <label className="field">
-          <span>Email</span>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="sign-up-email">Email</Label>
+          <Input
+            id="sign-up-email"
             autoComplete="email"
-            className="field-input"
             disabled={isSubmitting}
             name="email"
             onChange={(event) => setEmail(event.target.value)}
@@ -83,13 +87,13 @@ export function SignUpPage() {
             type="email"
             value={email}
           />
-        </label>
+        </div>
 
-        <label className="field">
-          <span>Password</span>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="sign-up-password">Password</Label>
+          <Input
+            id="sign-up-password"
             autoComplete="new-password"
-            className="field-input"
             disabled={isSubmitting}
             minLength={8}
             name="password"
@@ -98,13 +102,13 @@ export function SignUpPage() {
             type="password"
             value={password}
           />
-        </label>
+        </div>
 
-        <label className="field">
-          <span>Confirm password</span>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="sign-up-confirm-password">Confirm password</Label>
+          <Input
+            id="sign-up-confirm-password"
             autoComplete="new-password"
-            className="field-input"
             disabled={isSubmitting}
             minLength={8}
             name="confirmPassword"
@@ -113,17 +117,18 @@ export function SignUpPage() {
             type="password"
             value={confirmPassword}
           />
-        </label>
+        </div>
 
-        {error ? <p className="form-message error">{error}</p> : null}
+        {error ? (
+          <Alert variant="destructive">
+            <AlertTitle>Could not create account</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
 
-        <button
-          className="button-link auth-submit"
-          disabled={isSubmitting}
-          type="submit"
-        >
+        <Button className="w-full sm:w-auto" disabled={isSubmitting} type="submit">
           {isSubmitting ? 'Creating account...' : 'Create account'}
-        </button>
+        </Button>
       </form>
     </AuthPageShell>
   )

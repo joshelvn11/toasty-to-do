@@ -8,6 +8,22 @@ type ApiErrorPayload = {
   error?: string
 }
 
+export const UNAUTHORIZED_EVENT = 'toasty:unauthorized'
+
+export class ApiError extends Error {
+  status: number
+
+  constructor(status: number, message: string) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
+}
+
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof ApiError
+}
+
 export async function requestJson<T>(
   path: string,
   options: RequestOptions = {},
@@ -34,7 +50,11 @@ export async function requestJson<T>(
         ? payload.error
         : `Request failed with ${response.status}.`
 
-    throw new Error(message)
+    if (response.status === 401 && typeof window !== 'undefined') {
+      window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))
+    }
+
+    throw new ApiError(response.status, message)
   }
 
   return payload as T

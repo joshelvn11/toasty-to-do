@@ -100,15 +100,19 @@ Done when:
 
 ## Phase 7: MVP Polish, Validation, and Guardrails
 
-- [ ] Refine the visual system to feel calm, minimal, and intentional rather than like a generic scaffold.
-- [ ] Review and simplify any rough interaction points in backlog and focus flows.
-- [ ] Add validation and defensive handling for obvious edge cases such as empty task titles, invalid session input, and unauthorized access attempts.
-- [ ] Add or improve automated tests for the highest-value domain and UI workflows.
-- [ ] Verify the app behavior remains within the MVP boundaries defined in `BRIEF.md`.
+- [x] Adopt `shadcn/ui` as the default component system for the app UI and keep styling close to the library defaults so the interface stays clean, simple, and minimal.
+- [x] Retrofit the existing backlog and focus-session screens to use suitable `shadcn/ui` components and primitives wherever they fit the MVP.
+- [x] Install any needed `shadcn/ui` components through the official `shadcn` CLI rather than copying or hand-rolling component implementations.
+- [x] Create custom UI components only when no suitable `shadcn/ui` component or primitive exists for the specific need.
+- [x] Review and simplify any rough interaction points in backlog and focus flows so capture stays low-friction and the distinction between backlog and current focus remains visually obvious.
+- [x] Add validation and defensive handling for obvious edge cases such as empty task titles, invalid session input, and unauthorized access attempts.
+- [x] Add or improve automated tests for the highest-value domain and UI workflows.
+- [x] Verify the app behavior remains within the MVP boundaries defined in `BRIEF.md`.
 
 Done when:
 
 - The product feels coherent as an MVP rather than a collection of disconnected screens.
+- The backlog and focus-session UI use a consistent, default-styled `shadcn/ui` component approach, with custom components added only where the library is not a suitable fit.
 - Core failure cases are handled sensibly.
 - The most important user flows have reliable test coverage.
 

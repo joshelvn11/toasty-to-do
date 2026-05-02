@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { ApiHealthCard } from './api-health-card.tsx'
+import { ApiHealthCard } from '@/components/api-health-card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 type AuthPageShellProps = {
   eyebrow: string
@@ -22,65 +25,72 @@ export function AuthPageShell({
   children,
 }: AuthPageShellProps) {
   return (
-    <main className="app-shell auth-shell">
-      <div className="site-frame">
-        <header className="topbar">
-          <div className="brand-block">
-            <div className="brand-mark">{eyebrow}</div>
-            <h1 className="brand-title">Toasty To Do</h1>
-            <p className="brand-copy">
+    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-6 py-8">
+      <header className="flex flex-col gap-4 rounded-2xl border border-border/70 bg-card p-6 shadow-sm lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-3">
+          <Badge variant="outline">{eyebrow}</Badge>
+          <div className="space-y-1">
+            <h1 className="text-3xl font-semibold tracking-tight">Toasty To Do</h1>
+            <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
               A calm backlog and focus-session app for one person at a time.
             </p>
           </div>
+        </div>
 
-          <nav className="nav-links" aria-label="Authentication links">
-            <Link className="link-pill" to="/">
-              Back to home
-            </Link>
-            <Link className="button-link" to={alternateHref}>
-              {alternateCta}
-            </Link>
-          </nav>
-        </header>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link to="/">Back to home</Link>
+          </Button>
+          <Button asChild>
+            <Link to={alternateHref}>{alternateCta}</Link>
+          </Button>
+        </div>
+      </header>
 
-        <section className="page-grid auth-grid">
-          <article className="auth-card">
-            <div className="eyebrow">{eyebrow}</div>
-            <h2 className="auth-title">{title}</h2>
-            <p className="hero-copy">{description}</p>
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.8fr)]">
+        <Card className="border-border/70 shadow-sm">
+          <CardHeader className="space-y-2">
+            <Badge className="w-fit" variant="secondary">
+              {eyebrow}
+            </Badge>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
             {children}
-
-            <p className="auth-alternate">
-              {alternateLabel} <Link to={alternateHref}>{alternateCta}</Link>
+            <p className="text-sm text-muted-foreground">
+              {alternateLabel}{' '}
+              <Link className="font-medium text-foreground underline underline-offset-4" to={alternateHref}>
+                {alternateCta}
+              </Link>
             </p>
-          </article>
+          </CardContent>
+        </Card>
 
-          <aside className="stack-list">
-            <ApiHealthCard />
+        <aside className="space-y-6">
+          <ApiHealthCard />
 
-            <section className="status-card">
-              <header>
-                <div>
-                  <div className="eyebrow">Why this split</div>
-                  <h3>Public first, backlog second</h3>
-                </div>
-                <span className="status-pill ready">Phase 4</span>
-              </header>
-
-              <p>
-                Public routes stay lightweight, while authenticated routes keep
-                the current user and backlog state behind session checks.
-              </p>
-
-              <ul className="status-list">
+          <Card className="border-border/70 shadow-sm">
+            <CardHeader className="space-y-1">
+              <Badge className="w-fit" variant="outline">
+                Why this split
+              </Badge>
+              <CardTitle>Public first, backlog second</CardTitle>
+              <CardDescription>
+                Public routes stay lightweight, while authenticated routes keep the
+                current user and backlog state behind session checks.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
                 <li>Email and password only for the MVP</li>
                 <li>Backlog management lives at the protected <code>/app</code> route</li>
-                <li>Focus-session workflow is still reserved for a later phase</li>
+                <li>Focus sessions narrow attention without creating duplicate tasks</li>
               </ul>
-            </section>
-          </aside>
-        </section>
-      </div>
+            </CardContent>
+          </Card>
+        </aside>
+      </section>
     </main>
   )
 }

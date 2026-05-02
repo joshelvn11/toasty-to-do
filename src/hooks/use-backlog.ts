@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { isApiError } from '@/lib/api-client'
 import {
   completeTask as completeTaskRequest,
   createTask as createTaskRequest,
@@ -23,6 +24,10 @@ export type BacklogMutationError =
     }
 
 function getErrorMessage(error: unknown, fallback: string) {
+  if (isApiError(error) && error.status === 401) {
+    return 'Your session has ended. Redirecting you to sign in.'
+  }
+
   return error instanceof Error ? error.message : fallback
 }
 

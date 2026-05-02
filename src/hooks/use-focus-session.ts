@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { isApiError } from '@/lib/api-client'
 import {
   addTaskToFocusSession as addTaskToFocusSessionRequest,
   completeFocusSessionTask as completeFocusSessionTaskRequest,
@@ -27,6 +28,10 @@ export type FocusSessionMutationError =
     }
 
 function getErrorMessage(error: unknown, fallback: string) {
+  if (isApiError(error) && error.status === 401) {
+    return 'Your session has ended. Redirecting you to sign in.'
+  }
+
   return error instanceof Error ? error.message : fallback
 }
 

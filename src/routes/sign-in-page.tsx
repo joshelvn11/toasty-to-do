@@ -1,5 +1,9 @@
 import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { AuthPageShell } from '../components/auth-page-shell.tsx'
 import { authClient } from '../lib/auth-client.ts'
 
@@ -43,16 +47,16 @@ export function SignInPage() {
       alternateCta="Create account"
       alternateHref="/sign-up"
       alternateLabel="Need an account?"
-      description="Use your email and password to reach your protected backlog. Focus-session features are still intentionally reserved for the next phase."
+      description="Use your email and password to reach your protected backlog and current focus workspace."
       eyebrow="Welcome back"
       title="Sign in and get back to the list."
     >
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <label className="field">
-          <span>Email</span>
-          <input
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div className="space-y-2">
+          <Label htmlFor="sign-in-email">Email</Label>
+          <Input
+            id="sign-in-email"
             autoComplete="email"
-            className="field-input"
             disabled={isSubmitting}
             name="email"
             onChange={(event) => setEmail(event.target.value)}
@@ -60,13 +64,13 @@ export function SignInPage() {
             type="email"
             value={email}
           />
-        </label>
+        </div>
 
-        <label className="field">
-          <span>Password</span>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="sign-in-password">Password</Label>
+          <Input
+            id="sign-in-password"
             autoComplete="current-password"
-            className="field-input"
             disabled={isSubmitting}
             minLength={8}
             name="password"
@@ -75,17 +79,18 @@ export function SignInPage() {
             type="password"
             value={password}
           />
-        </label>
+        </div>
 
-        {error ? <p className="form-message error">{error}</p> : null}
+        {error ? (
+          <Alert variant="destructive">
+            <AlertTitle>Could not sign in</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
 
-        <button
-          className="button-link auth-submit"
-          disabled={isSubmitting}
-          type="submit"
-        >
+        <Button className="w-full sm:w-auto" disabled={isSubmitting} type="submit">
           {isSubmitting ? 'Signing in...' : 'Sign in'}
-        </button>
+        </Button>
       </form>
     </AuthPageShell>
   )

@@ -87,6 +87,7 @@ The interface should support calm decision-making. Every product choice should r
 ## Architecture Direction
 
 - Frontend: React + TypeScript with Vite
+- UI component approach: prefer official `shadcn/ui` components with default styling, and create custom components only when no suitable `shadcn/ui` option exists
 - Persistence: SQLite
 - Data and schema layer: Drizzle
 - Authentication: Better Auth

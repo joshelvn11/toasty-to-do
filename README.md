@@ -11,6 +11,7 @@ Phase 6 turns the protected `/app` route into the full backlog-to-focus workflow
 
 - React 19 + TypeScript
 - Vite for the frontend
+- Tailwind CSS v4 + `shadcn/ui` for the default component system
 - Hono on Node.js for the API
 - SQLite via `better-sqlite3`
 - Drizzle ORM and Drizzle Kit
@@ -76,6 +77,7 @@ The Vite client proxies `/api/*` requests to the Hono server during development.
 - `npm run dev:client` starts only the Vite frontend
 - `npm run dev:server` starts only the Hono server in watch mode
 - `npm run db:migrate` applies Drizzle migrations to the configured SQLite database
+- `npm run test` runs the Vitest suite for client UI flows and server services
 - `npm run typecheck` checks client, config, and server TypeScript
 - `npm run build` applies migrations, runs type checks, and builds the frontend bundle
 - `npm run lint` runs ESLint
@@ -83,4 +85,4 @@ The Vite client proxies `/api/*` requests to the Hono server during development.
 
 ## Current Status
 
-The app now supports the full MVP workflow in one authenticated screen. Users can authenticate, land in `/app`, create and prioritize backlog tasks, start or end a focus session with an optional duration, pull tasks into the current focus set, complete focus work, or return tasks to the backlog. The backlog remains the full source list while the focus panel highlights the smaller working set for the active session.
+The app now supports the full MVP workflow in one authenticated screen with a shared `shadcn/ui` component baseline. Users can authenticate, land in `/app`, create and prioritize backlog tasks, start or end a focus session with an optional duration, pull tasks into the current focus set, complete focus work, or return tasks to the backlog. The backlog remains the full source list while the focus panel highlights the smaller working set for the active session, and the highest-value client/server flows now have automated coverage through Vitest.

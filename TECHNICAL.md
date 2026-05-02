@@ -65,6 +65,7 @@
 
 - The authenticated app workflow now lives in [src/routes/app-shell-page.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/routes/app-shell-page.tsx:1).
 - Shared client-side JSON fetching lives in [src/lib/api-client.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/lib/api-client.ts:1) so task and focus-session modules follow the same request/error pattern.
+- `requestJson(...)` now throws a typed `ApiError` carrying `status` plus message text, and dispatches a shared unauthorized event on `401` so protected screens can redirect back to sign-in instead of surfacing a vague generic error.
 - Task requests remain centralized in [src/lib/task-api.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/lib/task-api.ts:1).
 - Focus-session requests are centralized in [src/lib/focus-session-api.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/lib/focus-session-api.ts:1).
 - [src/hooks/use-backlog.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/hooks/use-backlog.ts:1) continues to own the authenticated backlog read and mutation flow:
@@ -77,8 +78,25 @@
   - starting and ending a session
   - adding, removing, and completing focus tasks
   - tracking session-specific loading, pending-action, and mutation-error state
-- The focus panel presentation lives in [src/components/focus-session-panel.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/components/focus-session-panel.tsx:1) so the route can orchestrate backlog and session state without burying all focus UI details in one file.
+- The protected route now keeps orchestration in [src/routes/app-shell-page.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/routes/app-shell-page.tsx:1) while pushing most presentation into [src/components/backlog-panel.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/components/backlog-panel.tsx:1) and [src/components/focus-session-panel.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/components/focus-session-panel.tsx:1).
 - When a backlog mutation changes a task that is currently in focus, the route triggers a focus-session reload so the focus panel stays consistent with the canonical task record.
+
+## UI System and Styling
+
+- Phase 7 adopts `shadcn/ui` as the default component system for the app, initialized through the official CLI with `components.json` and generated primitives under [src/components/ui/](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/components/ui).
+- Tailwind CSS v4 is wired into Vite through [vite.config.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/vite.config.ts:1), with the shared `@/*` alias configured in TypeScript and Vite for generated component imports.
+- Global styling is now intentionally thin in [src/index.css](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/index.css:1): it defines the shadcn/Tailwind theme tokens, page background, and base typography while screen-level layout and component styling live primarily in component class names.
+- App-specific composition stays outside the generated primitives. Shared pieces such as [src/components/task-priority-badge.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/components/task-priority-badge.tsx:1) wrap generated primitives rather than forking them.
+
+## Testing
+
+- Vitest is configured in [vitest.config.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/vitest.config.ts:1) with a jsdom environment and shared cleanup in [src/test/setup.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/test/setup.ts:1).
+- Client coverage focuses on the authenticated workflow and focus-panel edge cases:
+  - [src/routes/app-shell-page.test.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/routes/app-shell-page.test.tsx:1) covers create, edit validation, add-to-focus, focus completion, and empty backlog rendering.
+  - [src/components/focus-session-panel.test.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/components/focus-session-panel.test.tsx:1) covers duration validation plus retryable load/empty states.
+- Server coverage focuses on domain guardrails rather than DB integration:
+  - [server/tasks/task-service.test.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/server/tasks/task-service.test.ts:1) covers blank titles, invalid status, and missing-task updates.
+  - [server/focus-sessions/focus-session-service.test.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/server/focus-sessions/focus-session-service.test.ts:1) covers second-session conflicts, completed-task rejection, ended-session mutation blocking, and missing task/session access.
 
 ## Route Boundaries
 
