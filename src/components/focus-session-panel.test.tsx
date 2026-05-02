@@ -24,7 +24,6 @@ function renderFocusSessionPanel(
       onRetry={onRetry}
       onStartSession={onStartSession}
       pendingSessionAction={null}
-      pendingTaskAction={null}
       pendingTaskId={null}
       session={null}
       sessionError={null}

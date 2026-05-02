@@ -1,12 +1,13 @@
 import { type FormEvent, type ReactNode, useState } from 'react'
-import { AlertCircleIcon, Clock3Icon, TimerIcon } from 'lucide-react'
+import { AlertCircleIcon, CheckIcon, Clock3Icon, TimerIcon, Undo2Icon, XIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { TaskPriorityBadge } from '@/components/task-priority-badge'
 import type { FocusSession } from '@/lib/focus-session-api'
 
@@ -17,7 +18,6 @@ type FocusSessionPanelProps = {
   isStarting: boolean
   pendingSessionAction: 'end' | null
   pendingTaskId: string | null
-  pendingTaskAction: 'remove' | 'complete' | null
   startError: string | null
   sessionError: string | null
   getTaskError: (taskId: string) => string | null
@@ -26,13 +26,6 @@ type FocusSessionPanelProps = {
   onEndSession: () => Promise<void> | void
   onCompleteTask: (taskId: string) => Promise<void> | void
   onRemoveTask: (taskId: string) => Promise<void> | void
-}
-
-function formatDateTime(value: string) {
-  return new Date(value).toLocaleString([], {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  })
 }
 
 function formatTime(value: string) {
@@ -49,7 +42,6 @@ export function FocusSessionPanel({
   isStarting,
   pendingSessionAction,
   pendingTaskId,
-  pendingTaskAction,
   startError,
   sessionError,
   getTaskError,
@@ -127,11 +119,6 @@ export function FocusSessionPanel({
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
               Current focus
             </p>
-            <CardTitle>Separate today from everything else</CardTitle>
-            <CardDescription>
-              The focus list is the deliberate slice of backlog work you are actively
-              working from right now.
-            </CardDescription>
           </div>
           <Badge variant={loadError ? 'destructive' : session ? 'default' : 'secondary'}>
             {loadError ? 'Error' : isLoading ? 'Loading' : session ? 'Active' : 'Idle'}
@@ -205,7 +192,6 @@ export function FocusSessionPanel({
             ) : (
               <div className="space-y-3">
                 {session.tasks.map((task) => {
-                  const isTaskBusy = pendingTaskId === task.id
                   const taskError = getTaskError(task.id)
 
                   return (
@@ -214,48 +200,57 @@ export function FocusSessionPanel({
                       className={task.completedAt ? 'border-border/70 bg-muted/25 shadow-none' : 'border-border/70 shadow-none'}
                       size="sm"
                     >
-                      <CardContent className="space-y-4 pt-4">
+                      <CardContent className="space-y-4 px-4 py-3">
                         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                           <div className="space-y-2">
+                            <h3 className="text-base font-medium">{task.title}</h3>
                             <div className="flex flex-wrap items-center gap-2">
-                              <h3 className="text-base font-medium">{task.title}</h3>
                               <TaskPriorityBadge priority={task.priority} />
                               <Badge variant="secondary">In focus</Badge>
                               {task.completedAt ? <Badge variant="outline">Completed</Badge> : null}
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              Added to focus {formatDateTime(task.addedToSessionAt)}
-                            </p>
                           </div>
 
                           <div className="flex flex-wrap gap-2">
                             {!task.completedAt ? (
-                              <Button
-                                disabled={isBusy}
-                                onClick={() => void onCompleteTask(task.id)}
-                                type="button"
-                                variant="outline"
-                              >
-                                {isTaskBusy && pendingTaskAction === 'complete'
-                                  ? 'Completing...'
-                                  : 'Complete'}
-                              </Button>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    disabled={isBusy}
+                                    onClick={() => void onCompleteTask(task.id)}
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    aria-label="Complete task"
+                                  >
+                                    <CheckIcon className="size-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Complete task</TooltipContent>
+                              </Tooltip>
                             ) : null}
 
-                            <Button
-                              disabled={isBusy}
-                              onClick={() => void onRemoveTask(task.id)}
-                              type="button"
-                              variant="outline"
-                            >
-                              {isTaskBusy && pendingTaskAction === 'remove'
-                                ? task.completedAt
-                                  ? 'Removing...'
-                                  : 'Returning...'
-                                : task.completedAt
-                                  ? 'Remove from focus'
-                                  : 'Return to backlog'}
-                            </Button>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  disabled={isBusy}
+                                  onClick={() => void onRemoveTask(task.id)}
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  aria-label={task.completedAt ? 'Remove from focus' : 'Return to backlog'}
+                                >
+                                  {task.completedAt ? (
+                                    <XIcon className="size-4" />
+                                  ) : (
+                                    <Undo2Icon className="size-4" />
+                                  )}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {task.completedAt ? 'Remove from focus' : 'Return to backlog'}
+                              </TooltipContent>
+                            </Tooltip>
                           </div>
                         </div>
 

@@ -1,9 +1,8 @@
 import { type FormEvent, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { LogOutIcon } from 'lucide-react'
 import { BacklogPanel } from '@/components/backlog-panel'
 import { FocusSessionPanel } from '@/components/focus-session-panel'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useAuthState } from '@/hooks/use-auth-state'
 import { useBacklog } from '@/hooks/use-backlog'
@@ -37,8 +36,6 @@ export function AppShellPage() {
     ...(currentFocusSession?.tasks.map((task) => task.id) ?? []),
     ...(!currentFocusSession ? queuedFocusTaskIds : []),
   ])
-  const activeFocusTaskCount =
-    currentFocusSession?.tasks.filter((task) => !task.completedAt).length ?? 0
   const isAnyFocusActionPending =
     focusSession.isStarting ||
     Boolean(focusSession.pendingSessionAction) ||
@@ -233,40 +230,16 @@ export function AppShellPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-6 py-8">
-      <header className="flex flex-col gap-4 rounded-2xl border border-border/70 bg-card p-6 shadow-sm lg:flex-row lg:items-start lg:justify-between">
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline">Protected workspace</Badge>
-            <Badge variant={currentFocusSession ? 'default' : 'secondary'}>
-              {currentFocusSession ? 'Focus session active' : 'No active focus'}
-            </Badge>
-          </div>
-          <div className="space-y-1">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              {auth.user.name}&apos;s backlog and focus
-            </h1>
-            <p className="max-w-3xl text-sm text-muted-foreground sm:text-base">
-              Keep the full list visible, then pull only a few tasks into the current
-              focus so the next action stays obvious.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline">
-            <Link to="/">Public home</Link>
-          </Button>
-          <Button disabled={isSigningOut} onClick={handleSignOut} type="button" variant="outline">
-            <LogOutIcon />
-            {isSigningOut ? 'Signing out...' : 'Sign out'}
-          </Button>
-        </div>
+      <header className="flex justify-end">
+        <Button disabled={isSigningOut} onClick={handleSignOut} type="button" variant="outline">
+          <LogOutIcon />
+          {isSigningOut ? 'Signing out...' : 'Sign out'}
+        </Button>
       </header>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.95fr)]">
         <BacklogPanel
           createErrorMessage={createErrorMessage}
-          currentFocusTaskCount={activeFocusTaskCount}
           editPriority={editPriority}
           editTitle={editTitle}
           editingTaskId={editingTaskId}
@@ -308,7 +281,6 @@ export function AppShellPage() {
           onSaveEdit={handleSaveEdit}
           onToggleTask={handleToggleTask}
           pendingTaskId={backlog.pendingTaskId}
-          queuedFocusTaskCount={queuedFocusTaskIds.length}
           tasks={backlog.tasks}
         />
 
@@ -334,11 +306,6 @@ export function AppShellPage() {
             onRetry={focusSession.reload}
             onStartSession={handleStartFocusSession}
             pendingSessionAction={focusSession.pendingSessionAction}
-            pendingTaskAction={
-              focusSession.pendingTaskAction === 'add'
-                ? null
-                : focusSession.pendingTaskAction
-            }
             pendingTaskId={focusSession.pendingTaskId}
             session={currentFocusSession}
             sessionError={sessionError}

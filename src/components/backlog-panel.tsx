@@ -1,7 +1,15 @@
 import { type FormEvent, type ReactNode } from 'react'
-import { AlertCircleIcon, CheckCircle2Icon, Clock3Icon, PlusIcon } from 'lucide-react'
+import {
+  AlertCircleIcon,
+  CheckCheckIcon,
+  CheckCircle2Icon,
+  CheckIcon,
+  Clock3Icon,
+  PencilIcon,
+  PlusIcon,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -15,6 +23,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { TaskPriorityBadge } from '@/components/task-priority-badge'
 import type { Task, TaskListStatus, TaskPriority } from '@/lib/task-api'
 import { TASK_LIST_STATUSES, TASK_PRIORITIES } from '@/lib/task-api'
@@ -41,8 +50,6 @@ type BacklogPanelProps = {
   onCreateTask: (event: FormEvent<HTMLFormElement>) => Promise<void> | void
   onFilterChange: (status: TaskListStatus) => void
   onRetry: () => void
-  currentFocusTaskCount: number
-  queuedFocusTaskCount: number
   hasActiveFocusSession: boolean
   editingTaskId: string | null
   editTitle: string
@@ -76,8 +83,6 @@ export function BacklogPanel({
   onCreateTask,
   onFilterChange,
   onRetry,
-  currentFocusTaskCount,
-  queuedFocusTaskCount,
   hasActiveFocusSession,
   editingTaskId,
   editTitle,
@@ -98,26 +103,11 @@ export function BacklogPanel({
   return (
     <Card className="border-border/70 shadow-sm">
       <CardHeader className="gap-3">
-        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div className="space-y-1">
           <div className="space-y-1">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
               Backlog
             </p>
-            <CardTitle>Your full task list lives here</CardTitle>
-            <CardDescription className="max-w-2xl">
-              Capture everything in one place, then pull only a few open tasks into
-              the current focus without creating duplicate records.
-            </CardDescription>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">{FILTER_LABELS[filter]} view</Badge>
-            <Badge variant={hasActiveFocusSession ? 'default' : 'secondary'}>
-              {hasActiveFocusSession
-                ? `${currentFocusTaskCount} in focus`
-                : queuedFocusTaskCount > 0
-                  ? `${queuedFocusTaskCount} queued for focus`
-                  : 'No active focus'}
-            </Badge>
           </div>
         </div>
       </CardHeader>
@@ -227,7 +217,7 @@ export function BacklogPanel({
                   )}
                   size="sm"
                 >
-                  <CardContent className="space-y-4 pt-4">
+                  <CardContent className="space-y-4 px-4 py-3">
                     {isEditing ? (
                       <div className="space-y-4">
                         <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_180px]">
@@ -285,8 +275,8 @@ export function BacklogPanel({
                       </div>
                     ) : (
                       <>
-                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                          <div className="space-y-2">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                          <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <h3
                                 className={cn(
@@ -304,62 +294,85 @@ export function BacklogPanel({
                               ) : null}
                               {task.completedAt ? <Badge variant="outline">Completed</Badge> : null}
                             </div>
-
-                            <p className="text-sm text-muted-foreground">
-                              Updated{' '}
-                              {new Date(task.updatedAt).toLocaleString([], {
-                                dateStyle: 'medium',
-                                timeStyle: 'short',
-                              })}
-                            </p>
                           </div>
 
                           <div className="flex flex-wrap gap-2">
-                            <Button
-                              disabled={Boolean(pendingTaskId)}
-                              onClick={() => onBeginEdit(task)}
-                              type="button"
-                              variant="outline"
-                            >
-                              Edit
-                            </Button>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  disabled={Boolean(pendingTaskId)}
+                                  onClick={() => onBeginEdit(task)}
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  aria-label="Edit task"
+                                >
+                                  <PencilIcon className="size-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Edit task</TooltipContent>
+                            </Tooltip>
 
                             {!task.completedAt ? (
-                              <Button
-                                disabled={
-                                  hasActiveFocusSession &&
-                                  (isInFocus ||
-                                    Boolean(pendingTaskId) ||
-                                    isAnyFocusActionPending)
-                                }
-                                onClick={() => void onAddTaskToFocus(task.id)}
-                                type="button"
-                                variant="outline"
-                              >
-                                {hasActiveFocusSession
-                                  ? isInFocus
-                                    ? 'In focus'
-                                    : 'Add to focus'
-                                  : isInFocus
-                                    ? 'Queued for focus'
-                                    : 'Add to next focus'}
-                              </Button>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    disabled={
+                                      hasActiveFocusSession &&
+                                      (isInFocus ||
+                                        Boolean(pendingTaskId) ||
+                                        isAnyFocusActionPending)
+                                    }
+                                    onClick={() => void onAddTaskToFocus(task.id)}
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    aria-label={
+                                      hasActiveFocusSession
+                                        ? isInFocus
+                                          ? 'In focus'
+                                          : 'Add to focus'
+                                        : isInFocus
+                                          ? 'Queued for focus'
+                                          : 'Add to next focus'
+                                    }
+                                  >
+                                    <CheckCheckIcon className="size-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {hasActiveFocusSession
+                                    ? isInFocus
+                                      ? 'In focus'
+                                      : 'Add to focus'
+                                    : isInFocus
+                                      ? 'Queued for focus'
+                                      : 'Add to next focus'}
+                                </TooltipContent>
+                              </Tooltip>
                             ) : null}
 
-                            <Button
-                              disabled={Boolean(pendingTaskId)}
-                              onClick={() => void onToggleTask(task)}
-                              type="button"
-                              variant="outline"
-                            >
-                              {isBacklogTaskBusy
-                                ? task.completedAt
-                                  ? 'Reopening...'
-                                  : 'Completing...'
-                                : task.completedAt
-                                  ? 'Reopen'
-                                  : 'Complete'}
-                            </Button>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  disabled={Boolean(pendingTaskId)}
+                                  onClick={() => void onToggleTask(task)}
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  aria-label={task.completedAt ? 'Reopen task' : 'Complete task'}
+                                >
+                                  {task.completedAt ? (
+                                    <CheckCircle2Icon className="size-4" />
+                                  ) : (
+                                    <CheckIcon className="size-4" />
+                                  )}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {task.completedAt ? 'Reopen task' : 'Complete task'}
+                              </TooltipContent>
+                            </Tooltip>
                           </div>
                         </div>
 
