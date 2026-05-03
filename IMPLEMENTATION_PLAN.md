@@ -122,6 +122,7 @@ Done when:
 - [ ] Create or update technical documentation for auth flow, schema direction, and major domain decisions if those docs now exist.
 - [ ] Add a changelog entry summarizing the MVP foundation if a changelog is introduced.
 - [ ] Review `.env.example` and document any required environment variables.
+- [x] Add containerized deployment support with a production Dockerfile and Docker Compose setup suitable for single-service platforms.
 - [ ] Perform a final documentation impact review against the repository rules in `AGENTS.md`.
 
 Done when:

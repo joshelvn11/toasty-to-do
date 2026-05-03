@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added a production Dockerfile and `docker-compose.yml` that package the Vite frontend and Hono API into a single deployable container with a persistent SQLite volume.
+- Added a compiled production server build plus static asset serving so the app can run behind one origin on platforms such as Coolify.
 - Added user-owned backlog task lists with authenticated `/api/lists` endpoints for create, rename, list, and delete operations.
 - Added nullable task-to-list assignment through the central task write path, including ownership validation and list metadata on task DTOs.
 - Added grouped backlog rendering so `/app` shows the filtered task set under `Unassigned` plus each user-created list while preserving existing task and focus actions.

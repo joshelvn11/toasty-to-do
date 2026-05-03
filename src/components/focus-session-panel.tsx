@@ -96,18 +96,6 @@ export function FocusSessionPanel({
       : new Date(
           new Date(session.startedAt).getTime() + session.durationMinutes * 60_000,
         ).toISOString()
-  const remainingMinutes =
-    !session || session.durationMinutes === null
-      ? null
-      : Math.max(
-          0,
-          Math.ceil(
-            (new Date(session.startedAt).getTime() +
-              session.durationMinutes * 60_000 -
-              Date.now()) /
-              60_000,
-          ),
-        )
 
   const isBusy = isStarting || pendingSessionAction === 'end' || Boolean(pendingTaskId)
 
@@ -152,8 +140,8 @@ export function FocusSessionPanel({
                 }
               />
               <MetricCard
-                label="Time remaining"
-                value={remainingMinutes === null ? 'Open-ended' : `${remainingMinutes} min`}
+                label="Ends at"
+                value={sessionEndsAt === null ? 'Open-ended' : formatTime(sessionEndsAt)}
               />
               <MetricCard label="Open in focus" value={String(activeTaskCount)} />
               <MetricCard label="Completed here" value={String(completedTaskCount)} />

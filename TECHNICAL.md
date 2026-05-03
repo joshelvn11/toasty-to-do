@@ -7,6 +7,7 @@
 - Server code resolves the current session with `auth.api.getSession({ headers })`, wrapped by helpers in [server/auth.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/server/auth.ts:1).
 - `requireSession(...)` now throws a typed unauthorized error so authenticated API routes and global error handling can consistently return `401`.
 - The Node server applies pending Drizzle migrations during startup through [server/db/migrate.ts](/Users/JoshBeaver/Documents/PERSONAL/TOASTY%20TO%20DO/toasty-to-do/server/db/migrate.ts:1), which keeps local development databases aligned with the checked-in schema before requests hit the API.
+- In containerized production, `APP_URL` and `BETTER_AUTH_URL` should both point at the same public origin because the compiled Hono server serves the frontend and API from one process.
 
 ## Schema Ownership and Domain Tables
 
@@ -132,3 +133,10 @@
 - `/app` is the protected authenticated backlog shell.
 - Unknown routes redirect to `/`, which then redirects authenticated users into `/app`.
 - Shared request parsing and authenticated user resolution now live in [server/lib/route-utils.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/server/lib/route-utils.ts:1) so the task and focus-session route modules can stay thin and consistent.
+
+## Production Build and Container Shape
+
+- `npm run build` now produces a production artifact split into `dist/client` for the Vite frontend and `dist/server` for the compiled Hono server.
+- The compiled server serves static frontend assets plus SPA fallback routing through [server/lib/static-app.ts](/Users/JoshBeaver/Documents/PERSONAL/TOASTY%20TO%20DO/toasty-to-do/server/lib/static-app.ts:1), so Docker deployment can run the entire app in a single container.
+- The production `Dockerfile` uses a multi-stage Node 22 build, prunes dev dependencies after compilation, and runs the app with `npm run start`.
+- [docker-compose.yml](/Users/JoshBeaver/Documents/PERSONAL/TOASTY%20TO%20DO/toasty-to-do/docker-compose.yml:1) mounts `/app/data` as a persistent volume so the SQLite database survives container restarts.

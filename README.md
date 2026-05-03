@@ -76,6 +76,31 @@ The default local endpoints are:
 
 The Vite client proxies `/api/*` requests to the Hono server during development.
 
+## Docker Deployment
+
+The repository now ships with a production `Dockerfile` and a `docker-compose.yml` that run the app as a single container:
+
+- the Vite frontend is built into static assets
+- the Hono server serves both `/api/*` and the built frontend
+- Drizzle migrations still run automatically on container startup
+- SQLite data is persisted in a mounted `/app/data` volume
+
+Build and run with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+The container listens on port `3000` by default in Docker, so the app is available at `http://localhost:3000`.
+
+Important production notes:
+
+- Set `APP_URL` and `BETTER_AUTH_URL` to the same public HTTPS origin in production, for example `https://toasty.example.com`
+- Set a strong `BETTER_AUTH_SECRET`
+- Keep `DATABASE_PATH` pointed at a persistent volume path such as `/app/data/toasty-to-do.sqlite`
+
+This single-container shape is intended to work cleanly on platforms like Coolify, where you can deploy from either the `Dockerfile` or the included Compose file.
+
 ## Scripts
 
 - `npm run dev` starts the client and server together
@@ -85,8 +110,12 @@ The Vite client proxies `/api/*` requests to the Hono server during development.
 - `npm run test` runs the Vitest suite for client UI flows and server services
 - `npm run typecheck` checks client, config, and server TypeScript
 - `npm run build` applies migrations, runs type checks, and builds the frontend bundle
+- `npm run build:client` builds the Vite frontend bundle into `dist/client`
+- `npm run build:server` compiles the Hono server into `dist/server`
+- `npm run build` runs type checks and produces the full production build
 - `npm run lint` runs ESLint
 - `npm run preview` previews the Vite frontend build
+- `npm run start` starts the compiled production server
 
 ## Current Status
 
