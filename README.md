@@ -101,6 +101,34 @@ Important production notes:
 
 This single-container shape is intended to work cleanly on platforms like Coolify, where you can deploy from either the `Dockerfile` or the included Compose file.
 
+## PWA Support
+
+The frontend now includes a minimal installable PWA setup:
+
+- a generated web app manifest
+- a production service worker with auto-update behavior
+- installable app metadata for supported desktop and mobile browsers
+- placeholder PNG app icons for standard and maskable install surfaces
+
+What this does not include yet:
+
+- offline sign-in
+- offline task reads or writes
+- background sync of task changes
+- cached API responses for `/api/*`
+
+The app remains network-dependent for authenticated work. The service worker only precaches the built frontend assets so installability works cleanly without changing task or auth behavior.
+
+To verify installability locally:
+
+```bash
+npm install
+npm run build
+npm run start
+```
+
+Then open the app in a Chromium-based browser, confirm an install option appears, and check that the installed app opens in standalone mode. In production, use the same same-origin deployment you already need for Better Auth and confirm the manifest, service worker, and icons are all served from the public app origin.
+
 ## Scripts
 
 - `npm run dev` starts the client and server together

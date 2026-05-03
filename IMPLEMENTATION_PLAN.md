@@ -123,6 +123,7 @@ Done when:
 - [ ] Add a changelog entry summarizing the MVP foundation if a changelog is introduced.
 - [ ] Review `.env.example` and document any required environment variables.
 - [x] Add containerized deployment support with a production Dockerfile and Docker Compose setup suitable for single-service platforms.
+- [x] Add a minimal installable PWA configuration with manifest, service worker registration, and install icons while keeping live API behavior network-dependent.
 - [ ] Perform a final documentation impact review against the repository rules in `AGENTS.md`.
 
 Done when:

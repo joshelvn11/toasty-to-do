@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added a minimal installable PWA setup with a generated manifest, production service worker registration, and placeholder PNG icons for standard and maskable install surfaces.
+- Kept PWA caching limited to the built frontend shell so authenticated task and auth flows remain network-dependent and continue using the live API.
 - Added a production Dockerfile and `docker-compose.yml` that package the Vite frontend and Hono API into a single deployable container with a persistent SQLite volume.
 - Added a compiled production server build plus static asset serving so the app can run behind one origin on platforms such as Coolify.
 - Added user-owned backlog task lists with authenticated `/api/lists` endpoints for create, rename, list, and delete operations.

@@ -116,6 +116,14 @@
 - Global styling is now intentionally thin in [src/index.css](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/index.css:1): it defines the shadcn/Tailwind theme tokens, page background, and base typography while screen-level layout and component styling live primarily in component class names.
 - App-specific composition stays outside the generated primitives. Shared pieces such as [src/components/task-priority-badge.tsx](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/components/task-priority-badge.tsx:1) wrap generated primitives rather than forking them.
 
+## Installable PWA Layer
+
+- The frontend now uses `vite-plugin-pwa` in [vite.config.ts](/Users/JoshBeaver/Documents/PERSONAL/TOASTY%20TO%20DO/toasty-to-do/vite.config.ts:1) with the `generateSW` strategy and automatic service-worker updates.
+- The manifest config exposes `Toasty To Do` as a standalone installable app, with standard plus maskable PNG icons served from `public/`.
+- Production builds register the service worker from [src/main.tsx](/Users/JoshBeaver/Documents/PERSONAL/TOASTY%20TO%20DO/toasty-to-do/src/main.tsx:1); development keeps it disabled to avoid local debugging friction.
+- Workbox caching remains intentionally conservative: built frontend assets are precached, `/api/*` is excluded from SPA fallback handling, and there is no API response caching or offline task-sync behavior in the MVP.
+- This means installability improves the shell experience only. Authenticated data still depends on the live backend and current Better Auth cookies/session flow.
+
 ## Testing
 
 - Vitest is configured in [vitest.config.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/vitest.config.ts:1) with a jsdom environment and shared cleanup in [src/test/setup.ts](/Users/joshbeaver/Documents/Projects/toasty-to-do/src/test/setup.ts:1).
@@ -140,3 +148,4 @@
 - The compiled server serves static frontend assets plus SPA fallback routing through [server/lib/static-app.ts](/Users/JoshBeaver/Documents/PERSONAL/TOASTY%20TO%20DO/toasty-to-do/server/lib/static-app.ts:1), so Docker deployment can run the entire app in a single container.
 - The production `Dockerfile` uses a multi-stage Node 22 build, prunes dev dependencies after compilation, and runs the app with `npm run start`.
 - [docker-compose.yml](/Users/JoshBeaver/Documents/PERSONAL/TOASTY%20TO%20DO/toasty-to-do/docker-compose.yml:1) mounts `/app/data` as a persistent volume so the SQLite database survives container restarts.
+- Because the app is deployed from one origin, the generated manifest and service worker can be served directly by the same Hono process without extra reverse-proxy routing.

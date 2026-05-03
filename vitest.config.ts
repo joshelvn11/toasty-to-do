@@ -8,6 +8,8 @@ export default mergeConfig(
       environment: 'jsdom',
       setupFiles: ['./src/test/setup.ts'],
       css: true,
+      include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'server/**/*.test.ts'],
+      exclude: ['dist/**', 'node_modules/**'],
     },
   }),
 )
