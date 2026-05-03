@@ -49,6 +49,10 @@ Install dependencies:
 npm install
 ```
 
+This repository currently pins `legacy-peer-deps=true` in `.npmrc` because `vite-plugin-pwa` has not yet updated its published peer range for the Vite 8 stack used here. That keeps `npm install`, `npm ci`, and Docker builds consistent until the upstream peer range catches up.
+
+The production runtime also carries an explicit `@opentelemetry/api` dependency because Better Auth currently expects that peer to be present when the server boots in a pruned container environment.
+
 Start the frontend and API server together:
 
 ```bash
