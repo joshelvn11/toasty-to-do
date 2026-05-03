@@ -26,6 +26,12 @@ Response:
       "id": "task_123",
       "title": "Write release notes",
       "priority": "medium",
+      "list": {
+        "id": "list_123",
+        "name": "Work",
+        "createdAt": "2026-04-20T09:00:00.000Z",
+        "updatedAt": "2026-04-20T09:00:00.000Z"
+      },
       "completedAt": null,
       "createdAt": "2026-04-20T10:00:00.000Z",
       "updatedAt": "2026-04-20T10:00:00.000Z"
@@ -43,7 +49,8 @@ Request body:
 ```json
 {
   "title": "Write release notes",
-  "priority": "high"
+  "priority": "high",
+  "listId": "list_123"
 }
 ```
 
@@ -51,7 +58,9 @@ Notes:
 
 - `title` is required and trimmed before persistence
 - `priority` is optional and defaults to `medium`
+- `listId` is optional and may be omitted or set to `null` for an unassigned task
 - valid priorities are `low`, `medium`, and `high`
+- `listId`, when provided, must belong to the authenticated user
 
 Response:
 
@@ -61,6 +70,12 @@ Response:
     "id": "task_123",
     "title": "Write release notes",
     "priority": "high",
+    "list": {
+      "id": "list_123",
+      "name": "Work",
+      "createdAt": "2026-04-20T09:00:00.000Z",
+      "updatedAt": "2026-04-20T09:00:00.000Z"
+    },
     "completedAt": null,
     "createdAt": "2026-04-20T10:00:00.000Z",
     "updatedAt": "2026-04-20T10:00:00.000Z"
@@ -77,14 +92,73 @@ Request body:
 ```json
 {
   "title": "Write API release notes",
-  "priority": "medium"
+  "priority": "medium",
+  "listId": null
 }
 ```
 
 Notes:
 
-- supports `title` and `priority` only
+- supports `title`, `priority`, and `listId`
 - an empty patch body is rejected with `400`
+
+## Task List Endpoints
+
+### `GET /api/lists`
+
+Returns the authenticated user's task lists in creation order.
+
+Response:
+
+```json
+{
+  "lists": [
+    {
+      "id": "list_123",
+      "name": "Work",
+      "createdAt": "2026-04-20T09:00:00.000Z",
+      "updatedAt": "2026-04-20T09:00:00.000Z"
+    }
+  ]
+}
+```
+
+### `POST /api/lists`
+
+Creates a task list for the authenticated user.
+
+Request body:
+
+```json
+{
+  "name": "Work"
+}
+```
+
+Notes:
+
+- `name` is required and trimmed before persistence
+
+### `PATCH /api/lists/:listId`
+
+Renames the authenticated user's list.
+
+Request body:
+
+```json
+{
+  "name": "Deep Work"
+}
+```
+
+### `DELETE /api/lists/:listId`
+
+Deletes the authenticated user's list.
+
+Notes:
+
+- deleting a list does not delete its tasks
+- tasks previously assigned to the list become unassigned
 
 ### `POST /api/tasks/:taskId/complete`
 

@@ -8,6 +8,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from './lib/errors.js'
+import { taskListRoutes } from './task-lists/task-list-routes.js'
 import { taskRoutes } from './tasks/task-routes.js'
 
 export const app = new Hono()
@@ -51,6 +52,7 @@ app.on(['GET', 'POST'], '/api/auth/*', (c) => {
 })
 
 app.route('/api/tasks', taskRoutes)
+app.route('/api/lists', taskListRoutes)
 app.route('/api/focus-sessions', focusSessionRoutes)
 
 export type AppType = typeof app

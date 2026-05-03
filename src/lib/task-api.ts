@@ -1,4 +1,5 @@
 import { requestJson } from './api-client.ts'
+import type { TaskList } from './task-list-api.ts'
 
 export const TASK_PRIORITIES = ['low', 'medium', 'high'] as const
 
@@ -12,6 +13,7 @@ export type Task = {
   id: string
   title: string
   priority: TaskPriority
+  list: TaskList | null
   completedAt: string | null
   createdAt: string
   updatedAt: string
@@ -42,6 +44,7 @@ export async function listTasks(
 export async function createTask(input: {
   title: string
   priority: TaskPriority
+  listId?: string | null
 }): Promise<Task> {
   const response = await requestJson<TaskResponse>('/api/tasks', {
     method: 'POST',
@@ -56,6 +59,7 @@ export async function updateTask(
   input: {
     title: string
     priority: TaskPriority
+    listId?: string | null
   },
 ): Promise<Task> {
   const response = await requestJson<TaskResponse>(`/api/tasks/${taskId}`, {

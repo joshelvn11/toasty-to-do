@@ -3,6 +3,7 @@ import { db } from '../db/client.js'
 import {
   focusSessions,
   focusSessionTasks,
+  taskLists,
   tasks,
 } from '../db/schema/index.js'
 import type {
@@ -64,15 +65,20 @@ export function listFocusSessionTasks(sessionId: string): FocusSessionTaskRow[] 
     .select({
       id: tasks.id,
       userId: tasks.userId,
+      listId: taskLists.id,
       title: tasks.title,
       priority: tasks.priority,
       completedAt: tasks.completedAt,
       createdAt: tasks.createdAt,
       updatedAt: tasks.updatedAt,
+      listName: taskLists.name,
+      listCreatedAt: taskLists.createdAt,
+      listUpdatedAt: taskLists.updatedAt,
       addedToSessionAt: focusSessionTasks.createdAt,
     })
     .from(focusSessionTasks)
     .innerJoin(tasks, eq(focusSessionTasks.taskId, tasks.id))
+    .leftJoin(taskLists, eq(tasks.listId, taskLists.id))
     .where(eq(focusSessionTasks.focusSessionId, sessionId))
     .orderBy(asc(focusSessionTasks.createdAt), asc(tasks.id))
     .all()

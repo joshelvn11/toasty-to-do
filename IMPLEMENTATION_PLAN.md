@@ -130,6 +130,23 @@ Done when:
 - The repository documentation matches the implemented system.
 - The project is ready for the next iteration without hidden setup knowledge.
 
+## Phase 9: Backlog Task Lists
+
+- [x] Update `BRIEF.md` to explicitly allow lightweight user-defined task lists as backlog categories while keeping tags, projects, and collaboration out of scope.
+- [x] Add a `task_list` table plus nullable `task.listId` support so one task can belong to zero or one user-owned list.
+- [x] Extend the task service and API to validate list ownership and return task list metadata alongside tasks.
+- [x] Add authenticated `/api/lists` endpoints for creating, renaming, listing, and deleting user-owned lists.
+- [x] Expand the authenticated backlog UI so users can create lists, assign tasks to lists, and manage list names.
+- [x] Change the backlog presentation to group the filtered task set by list, always including an `Unassigned` section first.
+- [x] Add or update automated tests covering list validation, grouped backlog rendering, and list-aware task mutations.
+- [x] Update affected documentation and changelog entries for the new backlog categorization feature.
+
+Done when:
+
+- A signed-in user can create, rename, and delete their own lists.
+- A task can be assigned to one list or left unassigned without affecting focus-session continuity.
+- The main backlog screen renders grouped sections for `Unassigned` and each user-created list.
+
 ## Phase Dependencies
 
 - Phase 1 must be completed before all later phases.

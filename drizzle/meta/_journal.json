@@ -15,6 +15,13 @@
       "when": 1776717374276,
       "tag": "0001_closed_donald_blake",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777752531330,
+      "tag": "0002_shocking_lester",
+      "breakpoints": true
     }
   ]
 }

@@ -10,6 +10,8 @@ import { useFocusSession } from '@/hooks/use-focus-session'
 import { authClient } from '@/lib/auth-client'
 import type { Task, TaskPriority } from '@/lib/task-api'
 
+const UNASSIGNED_LIST_VALUE = 'unassigned'
+
 export function AppShellPage() {
   const auth = useAuthState()
   const backlog = useBacklog()
@@ -18,14 +20,23 @@ export function AppShellPage() {
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [newTaskTitle, setNewTaskTitle] = useState('')
   const [newTaskPriority, setNewTaskPriority] = useState<TaskPriority>('medium')
+  const [newTaskListId, setNewTaskListId] = useState(UNASSIGNED_LIST_VALUE)
   const [createValidationError, setCreateValidationError] = useState<string | null>(
     null,
   )
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
   const [editPriority, setEditPriority] = useState<TaskPriority>('medium')
+  const [editListId, setEditListId] = useState(UNASSIGNED_LIST_VALUE)
   const [editValidationError, setEditValidationError] = useState<string | null>(null)
   const [queuedFocusTaskIds, setQueuedFocusTaskIds] = useState<string[]>([])
+  const [newListName, setNewListName] = useState('')
+  const [listValidationError, setListValidationError] = useState<string | null>(null)
+  const [editingListId, setEditingListId] = useState<string | null>(null)
+  const [editListName, setEditListName] = useState('')
+  const [editListValidationError, setEditListValidationError] = useState<string | null>(
+    null,
+  )
 
   if (auth.status !== 'authenticated') {
     return null
@@ -62,10 +73,15 @@ export function AppShellPage() {
     }
   }
 
+  function normalizeSelectedListId(value: string) {
+    return value === UNASSIGNED_LIST_VALUE ? null : value
+  }
+
   function beginEdit(task: Task) {
     setEditingTaskId(task.id)
     setEditTitle(task.title)
     setEditPriority(task.priority)
+    setEditListId(task.list?.id ?? UNASSIGNED_LIST_VALUE)
     setEditValidationError(null)
   }
 
@@ -73,6 +89,7 @@ export function AppShellPage() {
     setEditingTaskId(null)
     setEditTitle('')
     setEditPriority('medium')
+    setEditListId(UNASSIGNED_LIST_VALUE)
     setEditValidationError(null)
   }
 
@@ -83,7 +100,7 @@ export function AppShellPage() {
 
     if (!title) {
       setCreateValidationError('Give the task a title before adding it to the backlog.')
-      return
+      return false
     }
 
     setCreateValidationError(null)
@@ -91,14 +108,17 @@ export function AppShellPage() {
     const created = await backlog.createTask({
       title,
       priority: newTaskPriority,
+      listId: normalizeSelectedListId(newTaskListId),
     })
 
     if (!created) {
-      return
+      return false
     }
 
     setNewTaskTitle('')
     setNewTaskPriority('medium')
+    setNewTaskListId(UNASSIGNED_LIST_VALUE)
+    return true
   }
 
   async function handleSaveEdit(taskId: string) {
@@ -114,6 +134,7 @@ export function AppShellPage() {
     const saved = await backlog.updateTask(taskId, {
       title,
       priority: editPriority,
+      listId: normalizeSelectedListId(editListId),
     })
 
     if (!saved) {
@@ -125,6 +146,79 @@ export function AppShellPage() {
     }
 
     cancelEdit()
+  }
+
+  async function handleCreateList(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const name = newListName.trim()
+
+    if (!name) {
+      setListValidationError('Give the list a name before creating it.')
+      return false
+    }
+
+    setListValidationError(null)
+
+    const created = await backlog.createTaskList(name)
+
+    if (!created) {
+      return false
+    }
+
+    setNewListName('')
+    return true
+  }
+
+  function beginListEdit(listId: string, name: string) {
+    setEditingListId(listId)
+    setEditListName(name)
+    setEditListValidationError(null)
+  }
+
+  function cancelListEdit() {
+    setEditingListId(null)
+    setEditListName('')
+    setEditListValidationError(null)
+  }
+
+  async function handleSaveListEdit(listId: string) {
+    const name = editListName.trim()
+
+    if (!name) {
+      setEditListValidationError('List name cannot be blank.')
+      return
+    }
+
+    setEditListValidationError(null)
+
+    const saved = await backlog.updateTaskList(listId, name)
+
+    if (!saved) {
+      return
+    }
+
+    cancelListEdit()
+  }
+
+  async function handleDeleteList(listId: string) {
+    const deleted = await backlog.deleteTaskList(listId)
+
+    if (!deleted) {
+      return
+    }
+
+    if (newTaskListId === listId) {
+      setNewTaskListId(UNASSIGNED_LIST_VALUE)
+    }
+
+    if (editListId === listId) {
+      setEditListId(UNASSIGNED_LIST_VALUE)
+    }
+
+    if (editingListId === listId) {
+      cancelListEdit()
+    }
   }
 
   async function handleToggleTask(task: Task) {
@@ -224,9 +318,23 @@ export function AppShellPage() {
       : null
   }
 
+  function getListError(listId: string) {
+    return backlog.mutationError?.scope === 'list' &&
+      backlog.mutationError.listId === listId
+      ? backlog.mutationError.message
+      : null
+  }
+
   const createErrorMessage =
     createValidationError ??
     (backlog.mutationError?.scope === 'create' ? backlog.mutationError.message : null)
+
+  const listErrorMessage =
+    listValidationError ??
+    (backlog.mutationError?.scope === 'list' &&
+    backlog.mutationError.action === 'create'
+      ? backlog.mutationError.message
+      : null)
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-6 py-8">
@@ -240,25 +348,45 @@ export function AppShellPage() {
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.95fr)]">
         <BacklogPanel
           createErrorMessage={createErrorMessage}
+          editListId={editListId}
+          editListName={editListName}
           editPriority={editPriority}
           editTitle={editTitle}
+          editingListId={editingListId}
           editingTaskId={editingTaskId}
+          editListValidationError={editListValidationError}
           editValidationError={editValidationError}
           filter={backlog.filter}
           focusTaskIds={focusTaskIds}
           getBacklogTaskError={getBacklogTaskError}
           getFocusTaskError={getFocusTaskError}
+          getListError={getListError}
           hasActiveFocusSession={Boolean(currentFocusSession)}
           isAnyFocusActionPending={isAnyFocusActionPending}
           isCreating={backlog.isCreating}
           isLoading={backlog.isLoading}
+          lists={backlog.lists}
+          listValidationError={listErrorMessage}
           loadError={backlog.loadError}
+          newListName={newListName}
+          newTaskListId={newTaskListId}
           newTaskPriority={newTaskPriority}
           newTaskTitle={newTaskTitle}
           onAddTaskToFocus={handleAddTaskToFocus}
           onBeginEdit={beginEdit}
+          onBeginListEdit={beginListEdit}
           onCancelEdit={cancelEdit}
+          onCancelListEdit={cancelListEdit}
+          onCreateList={handleCreateList}
           onCreateTask={handleCreateTask}
+          onDeleteList={handleDeleteList}
+          onEditListIdChange={setEditListId}
+          onEditListNameChange={(value) => {
+            setEditListName(value)
+            if (editListValidationError) {
+              setEditListValidationError(null)
+            }
+          }}
           onEditPriorityChange={setEditPriority}
           onEditTitleChange={(value) => {
             setEditTitle(value)
@@ -270,6 +398,13 @@ export function AppShellPage() {
             cancelEdit()
             backlog.setFilter(status)
           }}
+          onNewListNameChange={(value) => {
+            setNewListName(value)
+            if (listValidationError) {
+              setListValidationError(null)
+            }
+          }}
+          onNewTaskListIdChange={setNewTaskListId}
           onNewTaskPriorityChange={setNewTaskPriority}
           onNewTaskTitleChange={(value) => {
             setNewTaskTitle(value)
@@ -279,6 +414,7 @@ export function AppShellPage() {
           }}
           onRetry={backlog.reload}
           onSaveEdit={handleSaveEdit}
+          onSaveListEdit={handleSaveListEdit}
           onToggleTask={handleToggleTask}
           pendingTaskId={backlog.pendingTaskId}
           tasks={backlog.tasks}

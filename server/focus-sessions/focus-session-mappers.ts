@@ -1,6 +1,7 @@
 import type { focusSessions } from '../db/schema/index.js'
 import {
   mapTaskRowToDto,
+  type TaskListSummaryRow,
   type TaskDto,
   type TaskRow,
 } from '../tasks/task-mappers.js'
@@ -11,7 +12,8 @@ import {
 
 export type FocusSessionRow = typeof focusSessions.$inferSelect
 
-export type FocusSessionTaskRow = TaskRow & {
+export type FocusSessionTaskRow = TaskRow &
+  TaskListSummaryRow & {
   addedToSessionAt: Date
 }
 

@@ -20,6 +20,7 @@ The core promise of the app is simple: keep the complete list available, but mak
 
 - Personal accounts and authenticated access
 - Backlog task creation and management
+- User-defined task lists for backlog categorization
 - Discrete priority levels on tasks
 - Focus session creation with optional duration
 - Adding and removing backlog tasks from a focus session
@@ -52,6 +53,10 @@ The core promise of the app is simple: keep the complete list available, but mak
 
 The backlog is the user's full personal list of outstanding tasks. It is the place where tasks live by default and serves as the source list for deciding what to work on next.
 
+### Task List
+
+A task list is a lightweight user-defined category inside the backlog. A task may belong to at most one list, and a list may contain many tasks. Lists are meant to help a user visually group related backlog items without turning the product into a project-management tool.
+
 ### Priority
 
 Priority is a discrete urgency or importance signal attached to each task. In the MVP, priority is represented as levels rather than manual top-to-bottom ranking of the entire backlog.
@@ -67,7 +72,10 @@ Completed tasks are retained as task records with a completed state rather than 
 ## Domain Model Direction
 
 - One user owns many tasks.
+- One user owns many task lists.
 - One user owns many focus sessions.
+- One task list belongs to one user and contains many tasks.
+- One task belongs to zero or one task list.
 - A focus session includes references to tasks rather than duplicated task records.
 - Tasks remain canonical in the backlog and overall domain model even when included in a focus session.
 - Priority is represented as levels, not manual top-to-bottom ranking.
@@ -80,7 +88,7 @@ This direction is intended to keep the write path clear: tasks are the core unit
 - Keep task capture fast and low-friction.
 - Make "what I could do" distinct from "what I am doing now."
 - Favor clarity and restraint over feature breadth.
-- Avoid speculative organization systems in the MVP.
+- Keep organization lightweight and explicit through lists only; do not expand into projects or tags.
 
 The interface should support calm decision-making. Every product choice should reinforce the difference between storing work and actively focusing on work.
 
@@ -105,6 +113,7 @@ Dates, tags, and projects should not be implied as near-term requirements anywhe
 
 - A user can authenticate and access only their own task data.
 - A user can create, edit, prioritize, complete, and review backlog tasks.
+- A user can create their own backlog lists and assign tasks into them.
 - A user can create a focus session and select backlog tasks into it.
 - The product supports a clear backlog-to-focus workflow without requiring extra organizational features.
 
@@ -113,7 +122,7 @@ Dates, tags, and projects should not be implied as near-term requirements anywhe
 The following ideas are explicitly deferred beyond the MVP:
 
 - Due dates
-- Tags or projects
+- Tags or projects beyond single-list categorization
 - Recurring tasks
 - Shared or collaborative lists
 - Reporting and richer history views
@@ -123,4 +132,4 @@ The following ideas are explicitly deferred beyond the MVP:
 - Toasty To Do is a personal app, not a team product.
 - Priority is represented through levels, not ordered ranking.
 - The product uses focus sessions, not just a static daily agenda.
-- The MVP is narrow by design and should remain focused on backlog-to-session workflow.
+- The MVP is narrow by design and should remain focused on backlog-to-session workflow, with only lightweight list-based backlog categorization.

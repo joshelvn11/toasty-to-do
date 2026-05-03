@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
 import { isApiError } from '@/lib/api-client'
 import {
+  createTaskList as createTaskListRequest,
+  deleteTaskList as deleteTaskListRequest,
+  listTaskLists,
+  updateTaskList as updateTaskListRequest,
+  type TaskList,
+} from '@/lib/task-list-api'
+import {
   completeTask as completeTaskRequest,
   createTask as createTaskRequest,
   listTasks,
@@ -15,6 +22,12 @@ import {
 export type BacklogMutationError =
   | {
       scope: 'create'
+      message: string
+    }
+  | {
+      scope: 'list'
+      listId?: string
+      action: 'create' | 'update' | 'delete'
       message: string
     }
   | {
@@ -34,6 +47,7 @@ function getErrorMessage(error: unknown, fallback: string) {
 export function useBacklog() {
   const [filter, setFilter] = useState<TaskListStatus>(TASK_LIST_STATUSES[0])
   const [tasks, setTasks] = useState<Task[]>([])
+  const [lists, setLists] = useState<TaskList[]>([])
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -48,6 +62,7 @@ export function useBacklog() {
     setIsLoading(true)
     setLoadError(null)
     setTasks([])
+    setLists([])
   }
 
   useEffect(() => {
@@ -56,13 +71,17 @@ export function useBacklog() {
 
     async function runLoad() {
       try {
-        const nextTasks = await listTasks(filter, controller.signal)
+        const [nextTasks, nextLists] = await Promise.all([
+          listTasks(filter, controller.signal),
+          listTaskLists(controller.signal),
+        ])
 
         if (!isActive || controller.signal.aborted) {
           return
         }
 
         setTasks(nextTasks)
+        setLists(nextLists)
       } catch (error) {
         if (!isActive || controller.signal.aborted) {
           return
@@ -101,7 +120,11 @@ export function useBacklog() {
     setFilter(nextFilter)
   }
 
-  async function createTask(input: { title: string; priority: TaskPriority }) {
+  async function createTask(input: {
+    title: string
+    priority: TaskPriority
+    listId?: string | null
+  }) {
     setMutationError(null)
     setIsCreating(true)
 
@@ -130,6 +153,7 @@ export function useBacklog() {
   async function updateTask(taskId: string, input: {
     title: string
     priority: TaskPriority
+    listId?: string | null
   }) {
     setMutationError(null)
     setPendingTaskId(taskId)
@@ -196,10 +220,70 @@ export function useBacklog() {
     }
   }
 
+  async function createTaskList(name: string) {
+    setMutationError(null)
+
+    try {
+      await createTaskListRequest({ name })
+      reload()
+
+      return true
+    } catch (error) {
+      setMutationError({
+        scope: 'list',
+        action: 'create',
+        message: getErrorMessage(error, 'Unable to create that list right now.'),
+      })
+
+      return false
+    }
+  }
+
+  async function updateTaskList(listId: string, name: string) {
+    setMutationError(null)
+
+    try {
+      await updateTaskListRequest(listId, { name })
+      reload()
+
+      return true
+    } catch (error) {
+      setMutationError({
+        scope: 'list',
+        listId,
+        action: 'update',
+        message: getErrorMessage(error, 'Unable to rename that list right now.'),
+      })
+
+      return false
+    }
+  }
+
+  async function deleteTaskList(listId: string) {
+    setMutationError(null)
+
+    try {
+      await deleteTaskListRequest(listId)
+      reload()
+
+      return true
+    } catch (error) {
+      setMutationError({
+        scope: 'list',
+        listId,
+        action: 'delete',
+        message: getErrorMessage(error, 'Unable to delete that list right now.'),
+      })
+
+      return false
+    }
+  }
+
   return {
     filter,
     setFilter: changeFilter,
     tasks,
+    lists,
     hasLoadedOnce,
     isLoading,
     loadError,
@@ -211,5 +295,8 @@ export function useBacklog() {
     updateTask,
     completeTask,
     reopenTask,
+    createTaskList,
+    updateTaskList,
+    deleteTaskList,
   }
 }

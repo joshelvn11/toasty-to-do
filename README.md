@@ -5,7 +5,9 @@ Toasty To Do is a minimalist personal task app built around two concepts:
 - A backlog that holds everything you need to do
 - A focus session that narrows attention to what matters right now
 
-Phase 6 turns the protected `/app` route into the full backlog-to-focus workflow. Signed-in users can manage backlog tasks through `/api/tasks`, start a single active focus session, pull tasks into it, remove them, end the session, and complete session tasks through `/api/focus-sessions` without duplicating task records.
+The backlog now supports lightweight user-defined lists so related tasks can be grouped without turning the app into a full project-management tool.
+
+The protected `/app` route now supports the full backlog-to-focus workflow. Signed-in users can manage backlog tasks through `/api/tasks`, organize them into personal lists through `/api/lists`, start a single active focus session, pull tasks into it, remove them, end the session, and complete session tasks through `/api/focus-sessions` without duplicating task records.
 
 ## Stack
 
@@ -59,12 +61,15 @@ Apply database migrations before using authentication or task APIs on a fresh da
 npm run db:migrate
 ```
 
+The dev API also applies any pending Drizzle migrations automatically on startup, so existing local databases stay in sync as the schema evolves.
+
 The default local endpoints are:
 
 - Frontend: `http://localhost:5173`
 - API health check: `http://localhost:8787/api/health`
 - Better Auth base route: `http://localhost:8787/api/auth/*`
 - Task API base route: `http://localhost:8787/api/tasks`
+- Task-list API base route: `http://localhost:8787/api/lists`
 - Focus-session API base route: `http://localhost:8787/api/focus-sessions`
 - Public auth routes: `http://localhost:5173/sign-in` and `http://localhost:5173/sign-up`
 - Protected app route: `http://localhost:5173/app`
@@ -85,4 +90,4 @@ The Vite client proxies `/api/*` requests to the Hono server during development.
 
 ## Current Status
 
-The app now supports the full MVP workflow in one authenticated screen with a shared `shadcn/ui` component baseline. Users can authenticate, land in `/app`, create and prioritize backlog tasks, start or end a focus session with an optional duration, pull tasks into the current focus set, complete focus work, or return tasks to the backlog. The backlog remains the full source list while the focus panel highlights the smaller working set for the active session, and the highest-value client/server flows now have automated coverage through Vitest.
+The app now supports the full MVP workflow in one authenticated screen with a shared `shadcn/ui` component baseline. Users can authenticate, land in `/app`, create and prioritize backlog tasks, organize them into personal lists, start or end a focus session with an optional duration, pull tasks into the current focus set, complete focus work, or return tasks to the backlog. The backlog remains the full source list while the focus panel highlights the smaller working set for the active session, and the highest-value client/server flows now have automated coverage through Vitest.

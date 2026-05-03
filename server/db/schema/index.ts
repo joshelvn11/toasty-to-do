@@ -132,6 +132,34 @@ export const verifications = sqliteTable(
   }),
 )
 
+export const taskLists = sqliteTable(
+  'task_list',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    createdAt: integer('created_at', {
+      mode: 'timestamp_ms',
+    })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer('updated_at', {
+      mode: 'timestamp_ms',
+    })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => ({
+    userIdIndex: index('task_list_user_id_idx').on(table.userId),
+    userCreatedIndex: index('task_list_user_created_idx').on(
+      table.userId,
+      table.createdAt,
+    ),
+  }),
+)
+
 export const tasks = sqliteTable(
   'task',
   {
@@ -139,6 +167,9 @@ export const tasks = sqliteTable(
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
+    listId: text('list_id').references(() => taskLists.id, {
+      onDelete: 'set null',
+    }),
     title: text('title').notNull(),
     priority: text('priority', {
       enum: TASK_PRIORITIES,
@@ -163,6 +194,7 @@ export const tasks = sqliteTable(
       sql`${table.priority} in ('low', 'medium', 'high')`,
     ),
     userIdIndex: index('task_user_id_idx').on(table.userId),
+    userListIndex: index('task_user_list_idx').on(table.userId, table.listId),
     userCompletedIndex: index('task_user_completed_idx').on(
       table.userId,
       table.completedAt,
@@ -242,6 +274,7 @@ export const authSchema = {
 
 export const appSchema = {
   ...authSchema,
+  taskList: taskLists,
   task: tasks,
   focusSession: focusSessions,
   focusSessionTask: focusSessionTasks,

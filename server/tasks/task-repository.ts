@@ -1,12 +1,13 @@
 import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm'
 import { db } from '../db/client.js'
-import { tasks } from '../db/schema/index.js'
-import type { TaskRow } from './task-mappers.js'
+import { taskLists, tasks } from '../db/schema/index.js'
+import type { TaskWithListRow } from './task-mappers.js'
 import type { TaskListStatus, TaskPriority } from './task-types.js'
 
 type NewTaskRow = {
   id: string
   userId: string
+  listId: string | null
   title: string
   priority: TaskPriority
 }
@@ -14,6 +15,7 @@ type NewTaskRow = {
 type TaskUpdateValues = {
   title?: string
   priority?: TaskPriority
+  listId?: string | null
   completedAt?: Date | null
   updatedAt: Date
 }
@@ -30,28 +32,49 @@ function getListFilter(userId: string, status: TaskListStatus) {
   return and(eq(tasks.userId, userId), isNull(tasks.completedAt))
 }
 
-export function insertTask(values: NewTaskRow): TaskRow {
+function getTaskSelection() {
+  return {
+    id: tasks.id,
+    userId: tasks.userId,
+    listId: taskLists.id,
+    title: tasks.title,
+    priority: tasks.priority,
+    completedAt: tasks.completedAt,
+    createdAt: tasks.createdAt,
+    updatedAt: tasks.updatedAt,
+    listName: taskLists.name,
+    listCreatedAt: taskLists.createdAt,
+    listUpdatedAt: taskLists.updatedAt,
+  }
+}
+
+export function insertTask(values: NewTaskRow): TaskWithListRow {
   const [task] = db.insert(tasks).values(values).returning().all()
 
-  return task
+  return findTaskById(values.userId, task.id)!
 }
 
 export function listTasksByUserId(
   userId: string,
   status: TaskListStatus,
-): TaskRow[] {
+): TaskWithListRow[] {
   return db
-    .select()
+    .select(getTaskSelection())
     .from(tasks)
+    .leftJoin(taskLists, eq(tasks.listId, taskLists.id))
     .where(getListFilter(userId, status))
     .orderBy(desc(tasks.createdAt), desc(tasks.id))
     .all()
 }
 
-export function findTaskById(userId: string, taskId: string): TaskRow | undefined {
+export function findTaskById(
+  userId: string,
+  taskId: string,
+): TaskWithListRow | undefined {
   return db
-    .select()
+    .select(getTaskSelection())
     .from(tasks)
+    .leftJoin(taskLists, eq(tasks.listId, taskLists.id))
     .where(and(eq(tasks.userId, userId), eq(tasks.id, taskId)))
     .get()
 }
@@ -60,13 +83,12 @@ export function updateTaskById(
   userId: string,
   taskId: string,
   values: TaskUpdateValues,
-): TaskRow {
-  const [task] = db
+): TaskWithListRow {
+  db
     .update(tasks)
     .set(values)
     .where(and(eq(tasks.userId, userId), eq(tasks.id, taskId)))
-    .returning()
-    .all()
+    .run()
 
-  return task
+  return findTaskById(userId, taskId)!
 }

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added user-owned backlog task lists with authenticated `/api/lists` endpoints for create, rename, list, and delete operations.
+- Added nullable task-to-list assignment through the central task write path, including ownership validation and list metadata on task DTOs.
+- Added grouped backlog rendering so `/app` shows the filtered task set under `Unassigned` plus each user-created list while preserving existing task and focus actions.
+- Added automated coverage for task-list validation, list-aware task updates, and the grouped backlog UI.
 - Added Phase 3 database support for `task`, `focus_session`, and `focus_session_task` tables on top of the Better Auth `user` table.
 - Added a centralized task repository and service layer for create, list, update, complete, and reopen operations.
 - Added authenticated `/api/tasks` endpoints with user-scoped ownership enforcement and input validation.

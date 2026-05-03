@@ -53,6 +53,7 @@ function createBacklogState(overrides: Partial<ReturnType<typeof useBacklog>> = 
   return {
     filter: 'open' as const,
     tasks: [],
+    lists: [],
     hasLoadedOnce: true,
     isLoading: false,
     loadError: null,
@@ -64,6 +65,9 @@ function createBacklogState(overrides: Partial<ReturnType<typeof useBacklog>> = 
     updateTask: vi.fn().mockResolvedValue(true),
     completeTask: vi.fn().mockResolvedValue(true),
     reopenTask: vi.fn().mockResolvedValue(true),
+    createTaskList: vi.fn().mockResolvedValue(true),
+    updateTaskList: vi.fn().mockResolvedValue(true),
+    deleteTaskList: vi.fn().mockResolvedValue(true),
     setFilter: vi.fn(),
     ...overrides,
   }
@@ -112,22 +116,50 @@ describe('AppShellPage', () => {
     vi.clearAllMocks()
   })
 
-  it('trims and submits new backlog tasks', async () => {
+  it('trims and submits new backlog tasks with the selected list', async () => {
     const user = userEvent.setup()
-    const { backlog } = renderPage()
+    const { backlog } = renderPage({
+      backlog: createBacklogState({
+        lists: [
+          {
+            id: 'list-1',
+            name: 'Work',
+            createdAt: '2026-05-02T08:00:00.000Z',
+            updatedAt: '2026-05-02T08:00:00.000Z',
+          },
+        ],
+      }),
+    })
 
+    await user.click(screen.getByRole('button', { name: /new task/i }))
     await user.type(screen.getByLabelText(/task title/i), '  Review PR  ')
-    await user.click(screen.getByRole('button', { name: /add task/i }))
+    await user.click(screen.getByRole('combobox', { name: /list/i }))
+    await user.click(screen.getByRole('option', { name: 'Work' }))
+    await user.click(screen.getAllByRole('button', { name: /add task/i })[0]!)
 
     await waitFor(() => {
       expect(backlog.createTask).toHaveBeenCalledWith({
         title: 'Review PR',
         priority: 'medium',
+        listId: 'list-1',
       })
     })
   })
 
-  it('shows edit validation for blank titles', async () => {
+  it('creates lists from the backlog screen', async () => {
+    const user = userEvent.setup()
+    const { backlog } = renderPage()
+
+    await user.click(screen.getByRole('button', { name: /new list/i }))
+    await user.type(screen.getByLabelText(/list name/i), '  Personal  ')
+    await user.click(screen.getAllByRole('button', { name: /add list/i })[0]!)
+
+    await waitFor(() => {
+      expect(backlog.createTaskList).toHaveBeenCalledWith('Personal')
+    })
+  })
+
+  it('shows edit validation for blank task titles', async () => {
     const user = userEvent.setup()
     const { backlog } = renderPage({
       backlog: createBacklogState({
@@ -136,6 +168,7 @@ describe('AppShellPage', () => {
             id: 'task-1',
             title: 'Initial title',
             priority: 'medium',
+            list: null,
             completedAt: null,
             createdAt: '2026-05-02T09:00:00.000Z',
             updatedAt: '2026-05-02T09:00:00.000Z',
@@ -144,12 +177,71 @@ describe('AppShellPage', () => {
       }),
     })
 
-    await user.click(screen.getByRole('button', { name: /^edit$/i }))
+    await user.click(screen.getByRole('button', { name: /^edit task$/i }))
     await user.clear(screen.getByLabelText(/edit title/i))
     await user.click(screen.getByRole('button', { name: /^save$/i }))
 
     expect(backlog.updateTask).not.toHaveBeenCalled()
     expect(screen.getByText(/task title cannot be blank/i)).toBeTruthy()
+  })
+
+  it('opens compact creation dialogs from backlog actions', async () => {
+    const user = userEvent.setup()
+    renderPage()
+
+    await user.click(screen.getByRole('button', { name: /new task/i }))
+    expect(screen.getByRole('heading', { name: /add task/i })).toBeTruthy()
+    await user.click(screen.getByRole('button', { name: /close/i }))
+
+    await user.click(screen.getByRole('button', { name: /new list/i }))
+    expect(screen.getByRole('heading', { name: /manage lists/i })).toBeTruthy()
+  })
+
+  it('groups backlog tasks by list with unassigned first', () => {
+    renderPage({
+      backlog: createBacklogState({
+        lists: [
+          {
+            id: 'list-1',
+            name: 'Work',
+            createdAt: '2026-05-02T08:00:00.000Z',
+            updatedAt: '2026-05-02T08:00:00.000Z',
+          },
+        ],
+        tasks: [
+          {
+            id: 'task-1',
+            title: 'Inbox task',
+            priority: 'medium',
+            list: null,
+            completedAt: null,
+            createdAt: '2026-05-02T09:00:00.000Z',
+            updatedAt: '2026-05-02T09:00:00.000Z',
+          },
+          {
+            id: 'task-2',
+            title: 'Work task',
+            priority: 'high',
+            list: {
+              id: 'list-1',
+              name: 'Work',
+              createdAt: '2026-05-02T08:00:00.000Z',
+              updatedAt: '2026-05-02T08:00:00.000Z',
+            },
+            completedAt: null,
+            createdAt: '2026-05-02T09:10:00.000Z',
+            updatedAt: '2026-05-02T09:10:00.000Z',
+          },
+        ],
+      }),
+    })
+
+    const headings = screen.getAllByRole('heading', { level: 3 })
+
+    expect(headings.map((heading) => heading.textContent)).toContain('Unassigned')
+    expect(headings.map((heading) => heading.textContent)).toContain('Work')
+    expect(screen.getByText('Inbox task')).toBeTruthy()
+    expect(screen.getByText('Work task')).toBeTruthy()
   })
 
   it('adds backlog tasks into the active focus session', async () => {
@@ -174,6 +266,7 @@ describe('AppShellPage', () => {
             id: 'task-1',
             title: 'Review PR',
             priority: 'medium',
+            list: null,
             completedAt: null,
             createdAt: '2026-05-02T09:00:00.000Z',
             updatedAt: '2026-05-02T09:00:00.000Z',
@@ -207,6 +300,7 @@ describe('AppShellPage', () => {
             id: 'task-1',
             title: 'Review PR',
             priority: 'medium',
+            list: null,
             completedAt: null,
             createdAt: '2026-05-02T09:00:00.000Z',
             updatedAt: '2026-05-02T09:00:00.000Z',
@@ -218,7 +312,7 @@ describe('AppShellPage', () => {
 
     renderPage({ backlog, focus })
 
-    await user.click(screen.getByRole('button', { name: /^complete$/i }))
+    await user.click(screen.getByRole('button', { name: /^complete task$/i }))
 
     await waitFor(() => {
       expect(focus.completeTaskInSession).toHaveBeenCalledWith('focus-1', 'task-1')

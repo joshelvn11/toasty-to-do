@@ -49,6 +49,10 @@ const baseSession = {
 const baseTask = {
   id: 'task-1',
   userId: 'user-1',
+  listId: null,
+  listName: null,
+  listCreatedAt: null,
+  listUpdatedAt: null,
   title: 'Write docs',
   priority: 'medium' as const,
   completedAt: null,

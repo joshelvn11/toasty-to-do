@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { BadRequestError, NotFoundError } from '../lib/errors.js'
+import { findTaskListById } from '../task-lists/task-list-repository.js'
 import { mapTaskRowToDto, type TaskDto } from './task-mappers.js'
 import {
   findTaskById,
@@ -18,11 +19,13 @@ import {
 export type CreateTaskInput = {
   title?: unknown
   priority?: unknown
+  listId?: unknown
 }
 
 export type UpdateTaskInput = {
   title?: unknown
   priority?: unknown
+  listId?: unknown
 }
 
 function normalizeRequiredTitle(value: unknown) {
@@ -81,6 +84,35 @@ function normalizeOptionalPriority(value: unknown) {
   return value
 }
 
+function normalizeOptionalListId(
+  userId: string,
+  value: unknown,
+): string | null | undefined {
+  if (value === undefined) {
+    return undefined
+  }
+
+  if (value === null) {
+    return null
+  }
+
+  if (typeof value !== 'string') {
+    throw new BadRequestError('Task list must be a string or null.')
+  }
+
+  const listId = value.trim()
+
+  if (!listId) {
+    throw new BadRequestError('Task list must be a valid list id or null.')
+  }
+
+  if (!findTaskListById(userId, listId)) {
+    throw new NotFoundError('List not found.')
+  }
+
+  return listId
+}
+
 function requireTask(userId: string, taskId: string) {
   const task = findTaskById(userId, taskId)
 
@@ -95,6 +127,7 @@ export function createTask(userId: string, input: CreateTaskInput): TaskDto {
   const task = insertTask({
     id: randomUUID(),
     userId,
+    listId: normalizeOptionalListId(userId, input.listId) ?? null,
     title: normalizeRequiredTitle(input.title),
     priority: normalizeCreatePriority(input.priority),
   })
@@ -127,14 +160,18 @@ export function updateTask(
 
   const title = normalizeOptionalTitle(input.title)
   const priority = normalizeOptionalPriority(input.priority)
+  const listId = normalizeOptionalListId(userId, input.listId)
 
-  if (title === undefined && priority === undefined) {
-    throw new BadRequestError('Task updates must include a title or priority.')
+  if (title === undefined && priority === undefined && listId === undefined) {
+    throw new BadRequestError(
+      'Task updates must include a title, priority, or list.',
+    )
   }
 
   const task = updateTaskById(userId, taskId, {
     title,
     priority,
+    listId,
     updatedAt: new Date(),
   })
 
